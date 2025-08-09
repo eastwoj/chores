@@ -1,0 +1,85 @@
+<div class="min-h-screen bg-white px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+        <%= @child.name %>'s Chores
+      </h1>
+      <p class="text-lg text-gray-600">
+        <%= Date.current.strftime("%A, %B %d, %Y") %>
+      </p>
+    </div>
+
+    <% if @today_chore_list && @today_chore_list.chore_completions.any? %>
+      <!-- Chore List -->
+      <div class="space-y-4">
+        <% @today_chore_list.chore_completions.each do |completion| %>
+          <div class="bg-white border-2 border-gray-200 rounded-2xl p-6 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <!-- Completion Status -->
+              <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center <%= completion.completed? ? 'bg-green-500 border-green-500' : 'border-gray-300' %>">
+                <% if completion.completed? %>
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                <% end %>
+              </div>
+              
+              <!-- Chore Info -->
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900">
+                  <%= completion.chore.name %>
+                </h3>
+                <% if completion.chore.points.present? && completion.chore.points > 0 %>
+                  <p class="text-gray-600">
+                    <%= completion.chore.points %> points
+                  </p>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <% unless completion.completed? %>
+              <button class="bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                Mark Done
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Progress Summary -->
+      <div class="mt-8 bg-gray-50 rounded-2xl p-6 text-center">
+        <% completed_count = @today_chore_list.chore_completions.select(&:completed?).count %>
+        <% total_count = @today_chore_list.chore_completions.count %>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">
+          Progress: <%= completed_count %>/<%= total_count %> Complete
+        </h3>
+        <div class="w-full bg-gray-200 rounded-full h-4">
+          <div class="bg-green-500 h-4 rounded-full" style="width: <%= (completed_count.to_f / total_count * 100).round(1) %>%"></div>
+        </div>
+      </div>
+
+    <% else %>
+      <!-- No Chores Today -->
+      <div class="text-center py-16">
+        <div class="text-6xl mb-4">🎉</div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          No chores today!
+        </h2>
+        <p class="text-xl text-gray-600">
+          Enjoy your free day, <%= @child.name %>!
+        </p>
+      </div>
+    <% end %>
+
+    <!-- Back Button -->
+    <div class="mt-8 text-center">
+      <%= link_to child_kiosk_index_path, class: "inline-block" do %>
+        <button class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+          Back to Profile Selection
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>

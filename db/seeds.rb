@@ -28,24 +28,24 @@ puts "Created parents: #{mom.full_name} and #{dad.full_name}"
 
 # Create children with different ages
 emma = Child.find_or_create_by!(family: family, first_name: "Emma") do |child|
-  child.birth_date = 12.years.ago.to_date
+  child.birth_date = 8.years.ago.to_date
   child.avatar_color = "#FF6B6B"
   child.active = true
 end
 
 liam = Child.find_or_create_by!(family: family, first_name: "Liam") do |child|
-  child.birth_date = 9.years.ago.to_date
+  child.birth_date = 10.years.ago.to_date
   child.avatar_color = "#4ECDC4"
   child.active = true
 end
 
-zoe = Child.find_or_create_by!(family: family, first_name: "Zoe") do |child|
+ava = Child.find_or_create_by!(family: family, first_name: "Ava") do |child|
   child.birth_date = 6.years.ago.to_date
   child.avatar_color = "#45B7D1"
   child.active = true
 end
 
-puts "Created children: #{[emma, liam, zoe].map(&:first_name).join(", ")}"
+puts "Created children: #{[emma, liam, ava].map(&:first_name).join(", ")}"
 
 # Create constant chores (daily habits)
 constant_chores_data = [

@@ -16,9 +16,9 @@ This foundation will guide the implementation of the actual PORO classes and ric
 
 ## Key Files
 
-- `/requirements.md` - Complete functional and technical requirements
-- `/architecture.md` - Technical architecture and database design
-- `/architecture_philosophy.md` - Design philosophy and implementation patterns
+- `/Users/jason/Projects/chores/requirements.md` - Complete functional and technical requirements
+- `/Users/jason/Projects/chores/architecture.md` - Technical architecture and database design
+- `/Users/jason/Projects/chores/architecture_philosophy.md` - Design philosophy and implementation patterns
 
 ## Development Guidelines
 

@@ -1,0 +1,56 @@
+<div class="min-h-screen bg-white flex items-center justify-center px-4">
+  <div class="max-w-md w-full">
+    <!-- Modal Container -->
+    <div class="bg-white border-2 border-gray-200 rounded-3xl p-8 shadow-lg">
+      <!-- Title -->
+      <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">
+        Parent Login
+      </h2>
+
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), local: true) do |f| %>
+        <!-- Email Field -->
+        <div class="mb-6">
+          <%= f.label :email, "Email", class: "block text-lg font-semibold text-gray-900 mb-3" %>
+          <%= f.email_field :email, 
+                            autofocus: true, 
+                            autocomplete: "email", 
+                            placeholder: "you@example.com",
+                            class: "w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-gray-400 focus:outline-none transition-colors" %>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-6">
+          <%= f.label :password, "Password", class: "block text-lg font-semibold text-gray-900 mb-3" %>
+          <%= f.password_field :password, 
+                               autocomplete: "current-password",
+                               placeholder: "••••••••",
+                               class: "w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-gray-400 focus:outline-none transition-colors" %>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="mb-6">
+            <label class="flex items-center">
+              <%= f.check_box :remember_me, class: "mr-3 h-4 w-4" %>
+              <span class="text-gray-700">Remember me</span>
+            </label>
+          </div>
+        <% end %>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4">
+          <%= f.submit "Sign in", 
+                       class: "flex-1 bg-gray-900 text-white py-4 px-6 text-lg font-semibold rounded-xl hover:bg-gray-800 transition-colors cursor-pointer" %>
+          
+          <%= link_to "Cancel", root_path, 
+                      class: "flex-1 text-center bg-white text-gray-700 py-4 px-6 text-lg font-semibold rounded-xl border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all" %>
+        </div>
+      <% end %>
+
+      <% if devise_mapping.recoverable? %>
+        <div class="mt-6 text-center">
+          <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-gray-600 hover:text-gray-800 underline" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

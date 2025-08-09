@@ -1,0 +1,106 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            Family Dashboard
+          </h1>
+          <p class="text-gray-600 mt-1">
+            <%= Date.current.strftime("%A, %B %d, %Y") %>
+          </p>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <p class="text-gray-700">
+            Welcome, <%= current_adult.email %>
+          </p>
+          <%= link_to "Sign Out", destroy_adult_session_path, method: :delete, 
+                      class: "bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Children Overview -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Children Overview</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% @children.each do |child| %>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-gray-900">
+                <%= child.name %>
+              </h3>
+              <span class="text-sm text-gray-500">
+                Age <%= child.age %>
+              </span>
+            </div>
+            
+            <div class="space-y-2">
+              <p class="text-gray-700">
+                <span class="font-medium">Current Earnings:</span> 
+                $<%= sprintf("%.2f", child.total_earnings || 0) %>
+              </p>
+              
+              <% today_list = @today_chore_lists.find { |list| list.child_id == child.id } %>
+              <% if today_list %>
+                <% completed = today_list.chore_completions.select(&:completed?).count %>
+                <% total = today_list.chore_completions.count %>
+                <p class="text-gray-700">
+                  <span class="font-medium">Today's Progress:</span> 
+                  <%= completed %>/<%= total %> chores
+                </p>
+                
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div class="bg-green-500 h-2 rounded-full" 
+                       style="width: <%= total > 0 ? (completed.to_f / total * 100).round(1) : 0 %>%">
+                  </div>
+                </div>
+              <% else %>
+                <p class="text-gray-500">No chores assigned today</p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button class="bg-blue-500 text-white p-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+          Manage Chores
+        </button>
+        <button class="bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+          View Reports
+        </button>
+        <button class="bg-purple-500 text-white p-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
+          Settings
+        </button>
+        <%= link_to child_kiosk_index_path, class: "block" do %>
+          <button class="w-full bg-gray-700 text-white p-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+            Open Child Kiosk
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Recent Activity (placeholder) -->
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+      
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <p class="text-gray-600 text-center py-8">
+          Recent activity feed will appear here...
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

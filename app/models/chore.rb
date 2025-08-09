@@ -15,6 +15,14 @@ class Chore < ApplicationRecord
   enum :chore_type, { constant: 0, rotational: 1 }
   enum :difficulty, { easy: 0, medium: 1, hard: 2 }
 
+  def name
+    title
+  end
+
+  def points
+    base_value
+  end
+
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
   scope :age_appropriate_for, ->(age) { 

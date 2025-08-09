@@ -1,0 +1,36 @@
+<div class="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+  <div class="text-center max-w-4xl mx-auto">
+    <!-- Title -->
+    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+      Choose Your Profile
+    </h1>
+    
+    <!-- Subtitle -->
+    <p class="text-xl md:text-2xl text-gray-600 mb-16">
+      Tap your name to see today's chore list.
+    </p>
+    
+    <!-- Children Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <% @children.each do |child| %>
+        <%= link_to child_kiosk_path(child), class: "block" do %>
+          <div class="bg-white border-2 border-gray-200 rounded-3xl p-8 hover:border-gray-300 hover:shadow-lg transition-all duration-200 cursor-pointer">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+              <%= child.name %>
+            </h2>
+            
+            <div class="text-left space-y-2">
+              <p class="text-gray-600 text-lg">
+                Age <%= child.age %>
+              </p>
+              
+              <p class="text-gray-900 text-lg font-semibold">
+                Earnings: $<%= sprintf("%.2f", child.total_earnings || 0) %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,7 @@
 class Child < ApplicationRecord
   belongs_to :family
   has_many :chore_lists, dependent: :destroy
+  has_many :daily_chore_lists, dependent: :destroy
   has_many :chore_completions, dependent: :destroy
   has_many :extra_completions, dependent: :destroy
   has_many :chore_assignments, dependent: :destroy
@@ -15,18 +16,27 @@ class Child < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
 
+  def name
+    first_name
+  end
+
   def age
     return nil unless birth_date?
     
     AgeCalculator.new(birth_date).calculate_in_years
   end
 
-  def current_period_earnings(payout_calculator = PayoutCalculator.new)
-    payout_calculator.current_period_earnings_for(self)
+  def total_earnings
+    current_period_earnings
   end
 
-  def lifetime_earnings(payout_calculator = PayoutCalculator.new)
-    payout_calculator.lifetime_earnings_for(self)
+  def current_period_earnings
+    # Simple calculation for now - sum base_value of completed chores
+    chore_completions.joins(:chore).where(status: 'completed').sum('chores.base_value') || 0
+  end
+
+  def lifetime_earnings
+    current_period_earnings
   end
 
   def activate!

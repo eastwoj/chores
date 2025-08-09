@@ -1,0 +1,30 @@
+<div class="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+  <div class="text-center max-w-4xl mx-auto">
+    <!-- Title -->
+    <h1 class="text-6xl md:text-7xl font-bold text-gray-900 mb-6">
+      Family Chore Tracker
+    </h1>
+    
+    <!-- Subtitle -->
+    <p class="text-xl md:text-2xl text-gray-600 mb-16 max-w-3xl mx-auto leading-relaxed">
+      Organize daily chores, keep rotations fair, and motivate kids with clear progress and rewards.
+    </p>
+    
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+      <!-- Open Child Kiosk Button -->
+      <%= link_to child_kiosk_index_path, class: "w-full sm:w-auto" do %>
+        <button class="bg-gray-900 text-white px-12 py-4 text-xl font-semibold rounded-lg hover:bg-gray-800 transition-colors duration-200 w-full sm:w-auto min-w-[280px]">
+          Open Child Kiosk
+        </button>
+      <% end %>
+      
+      <!-- Parent Login Button -->
+      <%= link_to new_adult_session_path, class: "w-full sm:w-auto" do %>
+        <button class="bg-white text-gray-900 px-12 py-4 text-xl font-semibold rounded-lg border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 w-full sm:w-auto min-w-[280px]">
+          Parent Login
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>

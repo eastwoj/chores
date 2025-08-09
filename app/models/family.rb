@@ -3,6 +3,7 @@ class Family < ApplicationRecord
   has_many :children, dependent: :destroy
   has_many :chores, dependent: :destroy
   has_many :extras, dependent: :destroy
+  has_many :daily_chore_lists, through: :children
   has_one :family_setting, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 100 }
