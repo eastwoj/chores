@@ -1,13 +1,15 @@
 class Child < ApplicationRecord
   belongs_to :family
+  has_many :child_roles, dependent: :destroy
+  has_many :roles, through: :child_roles
   has_many :chore_lists, dependent: :destroy
   has_many :daily_chore_lists, dependent: :destroy
   has_many :chore_completions, dependent: :destroy
   has_many :extra_completions, dependent: :destroy
   has_many :chore_assignments, dependent: :destroy
   has_many :constant_chores, -> { where(chore_type: :constant) }, 
-           through: :chore_assignments, 
-           source: :chore
+    through: :chore_assignments, 
+    source: :chore
 
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :birth_date, presence: true
@@ -18,6 +20,10 @@ class Child < ApplicationRecord
 
   def name
     first_name
+  end
+
+  def has_role?(role_name)
+    roles.exists?(name: role_name)
   end
 
   def age

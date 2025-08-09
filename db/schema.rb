@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_032018) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_223338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "adult_roles", force: :cascade do |t|
+    t.bigint "adult_id", null: false
+    t.bigint "role_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["adult_id", "role_id"], name: "index_adult_roles_on_adult_id_and_role_id", unique: true
+    t.index ["adult_id"], name: "index_adult_roles_on_adult_id"
+    t.index ["role_id"], name: "index_adult_roles_on_role_id"
+  end
 
   create_table "adults", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -26,9 +36,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_032018) do
     t.bigint "family_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
     t.index ["email"], name: "index_adults_on_email", unique: true
     t.index ["family_id"], name: "index_adults_on_family_id"
     t.index ["reset_password_token"], name: "index_adults_on_reset_password_token", unique: true
+  end
+
+  create_table "child_roles", force: :cascade do |t|
+    t.bigint "child_id", null: false
+    t.bigint "role_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_id", "role_id"], name: "index_child_roles_on_child_id_and_role_id", unique: true
+    t.index ["child_id"], name: "index_child_roles_on_child_id"
+    t.index ["role_id"], name: "index_child_roles_on_role_id"
   end
 
   create_table "children", force: :cascade do |t|
@@ -162,6 +187,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_032018) do
     t.index ["family_id"], name: "index_family_settings_on_family_id"
   end
 
+  create_table "roles", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_roles_on_name", unique: true
+  end
+
+  add_foreign_key "adult_roles", "adults"
+  add_foreign_key "adult_roles", "roles"
+  add_foreign_key "child_roles", "children"
+  add_foreign_key "child_roles", "roles"
   add_foreign_key "children", "families"
   add_foreign_key "chore_assignments", "children"
   add_foreign_key "chore_assignments", "chores"

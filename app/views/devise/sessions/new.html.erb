@@ -1,0 +1,45 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
+        Family Chore Tracker
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Sign in to your admin dashboard
+      </p>
+    </div>
+
+    <%= form_tag(session_path(resource_name), class: "mt-8 space-y-6", method: :post, local: true, data: { turbo: false }) do %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+      
+      <div class="space-y-4">
+        <div>
+          <%= label_tag "adult_email", "Email", class: "block text-sm font-medium text-gray-700" %>
+          <%= email_field_tag "adult[email]", "", autofocus: true, autocomplete: "email",
+                            class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+        </div>
+
+        <div>
+          <%= label_tag "adult_password", "Password", class: "block text-sm font-medium text-gray-700" %>
+          <%= password_field_tag "adult[password]", "", autocomplete: "current-password",
+                              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="flex items-center">
+            <%= check_box_tag "adult[remember_me]", "1", false, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+            <%= label_tag "adult_remember_me", "Remember me", class: "ml-2 block text-sm text-gray-900" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div>
+        <%= submit_tag "Sign In", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+      </div>
+    <% end %>
+
+    <div class="text-center">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>

@@ -27,3 +27,5 @@ This foundation will guide the implementation of the actual PORO classes and ric
 - Keep models rich with domain behavior while maintaining single responsibility
 - Use dependency injection for testability
 - Follow the established directory structure and naming conventions
+
+The dev server for this app runs on port 3001.

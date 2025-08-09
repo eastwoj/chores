@@ -49,6 +49,11 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
+  # Serve built assets from app/assets/builds/
+  config.assets.paths << Rails.root.join("app/assets/builds")
+  config.assets.compile = true
+  config.assets.debug = true
+
   # Append comments with runtime information tags to SQL queries in logs.
   config.active_record.query_log_tags_enabled = true
 
