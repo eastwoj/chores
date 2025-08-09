@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  child: one
+  date: 2025-08-08
+  generated_at: 2025-08-08 22:18:08
+
+two:
+  child: two
+  date: 2025-08-08
+  generated_at: 2025-08-08 22:18:08

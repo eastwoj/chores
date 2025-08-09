@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  first_name: MyString
+  birth_date: 2025-08-08
+  avatar_color: MyString
+  active: false
+  family: one
+
+two:
+  first_name: MyString
+  birth_date: 2025-08-08
+  avatar_color: MyString
+  active: false
+  family: two

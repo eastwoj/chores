@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  child: one
+  extra: one
+  status: 1
+  completed_at: 2025-08-08 22:20:08
+  approved_at: 2025-08-08 22:20:08
+  approved_by: one
+  earned_amount: 9.99
+  notes: MyText
+
+two:
+  child: two
+  extra: two
+  status: 1
+  completed_at: 2025-08-08 22:20:08
+  approved_at: 2025-08-08 22:20:08
+  approved_by: two
+  earned_amount: 9.99
+  notes: MyText

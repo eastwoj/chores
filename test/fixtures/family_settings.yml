@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  family: one
+  payout_interval_days: 1
+  base_chore_value: 9.99
+  auto_approve_after_hours: 1
+  notification_settings: MyText
+
+two:
+  family: two
+  payout_interval_days: 1
+  base_chore_value: 9.99
+  auto_approve_after_hours: 1
+  notification_settings: MyText

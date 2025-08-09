@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyText
+  instructions: MyText
+  chore_type: 1
+  difficulty: 1
+  estimated_minutes: 1
+  min_age: 1
+  max_age: 1
+  base_value: 9.99
+  active: false
+  family: one
+
+two:
+  title: MyString
+  description: MyText
+  instructions: MyText
+  chore_type: 1
+  difficulty: 1
+  estimated_minutes: 1
+  min_age: 1
+  max_age: 1
+  base_value: 9.99
+  active: false
+  family: two
