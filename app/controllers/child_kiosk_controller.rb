@@ -5,6 +5,85 @@ class ChildKioskController < ApplicationController
 
   def show
     @child = Child.find(params[:id])
-    @today_chore_list = @child.daily_chore_lists.find_by(date: Date.current)
+    @today_chore_list = find_or_create_daily_chore_list
+    @available_extras = find_available_extras
+  end
+
+  def complete_chore
+    @child = Child.find(params[:id])
+    completion = ChoreCompletion.find(params[:completion_id])
+    
+    # Verify this completion belongs to this child
+    if completion.child == @child && completion.assigned_date == Date.current
+      completion.mark_completed!
+      flash[:notice] = "Great job! You completed #{completion.chore.title}!"
+    else
+      flash[:alert] = "Something went wrong. Please try again."
+    end
+
+    redirect_to child_kiosk_path(@child)
+  end
+
+  def complete_extra
+    @child = Child.find(params[:id])
+    extra = Extra.find(params[:extra_id])
+    
+    # Verify this extra is assigned to this child and available
+    if @child.assigned_extras.include?(extra) && extra.can_be_completed_by?(@child)
+      # Check if already completed today
+      existing = extra.extra_completions.find_by(child: @child, created_at: Date.current.all_day)
+      
+      unless existing
+        extra.extra_completions.create!(
+          child: @child,
+          status: :completed,
+          completed_at: Time.current,
+          earned_amount: extra.reward_amount
+        )
+        flash[:notice] = "Awesome! You completed #{extra.title} and earned $#{sprintf('%.2f', extra.reward_amount)}!"
+      else
+        flash[:alert] = "You already completed this extra today."
+      end
+    else
+      flash[:alert] = "This extra is not available to you right now."
+    end
+
+    redirect_to child_kiosk_path(@child)
+  end
+
+  private
+
+  def find_or_create_daily_chore_list
+    daily_list = @child.daily_chore_lists.find_by(date: Date.current)
+    
+    unless daily_list
+      # Generate today's chores if they don't exist
+      @child.family.generate_daily_chore_lists(Date.current)
+      daily_list = @child.daily_chore_lists.find_by(date: Date.current)
+    end
+
+    # Return the ChoreList that contains today's chore completions
+    @child.chore_lists.includes(:chore_completions, chores: []).find_by(
+      start_date: Date.current,
+      interval: :daily
+    )
+  end
+
+  def find_available_extras
+    # Get assigned extras that are active and available today
+    @child.assigned_extras
+          .active
+          .current
+          .includes(:extra_completions)
+          .map do |extra|
+      # Check if child has any pending/completed extras for today
+      today_completion = extra.extra_completions.find_by(child: @child, created_at: Date.current.all_day)
+      
+      {
+        extra: extra,
+        completion: today_completion,
+        can_complete: today_completion.nil? && extra.can_be_completed_by?(@child)
+      }
+    end
   end
 end

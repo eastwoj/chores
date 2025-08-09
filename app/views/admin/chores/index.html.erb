@@ -1,0 +1,178 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Chore Management</h1>
+          <p class="text-gray-600 mt-1">Set up constant and rotational chores for your family</p>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <%= link_to admin_root_path, class: "text-gray-600 hover:text-gray-800" do %>
+            ← Back to Dashboard
+          <% end %>
+          <%= link_to "New Chore", new_admin_chore_path, 
+                      class: "bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Actions Bar -->
+    <div class="mb-8 flex justify-between items-center">
+      <div class="text-sm text-gray-600">
+        <%= @chores.count %> chores total
+      </div>
+      
+      <%= form_with url: generate_daily_lists_admin_chores_path, method: :post, local: true, class: "inline" do %>
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+          Generate Today's Chore Lists
+        </button>
+      <% end %>
+    </div>
+
+    <!-- Chores List -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Constant Chores -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-bold text-gray-900">Constant Chores</h2>
+          <p class="text-gray-600 text-sm mt-1">Assigned to specific children daily</p>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+          <% constant_chores = @chores.select(&:constant?) %>
+          <% if constant_chores.any? %>
+            <% constant_chores.each do |chore| %>
+              <div class="p-4">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                      <h3 class="font-semibold text-gray-900"><%= chore.title %></h3>
+                      <% unless chore.active? %>
+                        <span class="bg-gray-100 text-gray-600 px-2 py-1 text-xs rounded">Inactive</span>
+                      <% end %>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-1"><%= chore.description %></p>
+                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                      <span><%= chore.difficulty.humanize %></span>
+                      <% if chore.estimated_minutes %>
+                        <span><%= chore.estimated_duration %></span>
+                      <% end %>
+                    </div>
+                    
+                    <!-- Assigned Children -->
+                    <div class="mt-3">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-500">Assigned to:</span>
+                        <% if chore.assigned_children.any? %>
+                          <% chore.assigned_children.each do |child| %>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 text-xs rounded-full">
+                              <%= child.name %>
+                              <%= link_to "×", remove_constant_assignment_admin_chores_path(assignment_id: chore.chore_assignments.find_by(child: child).id), 
+                                          class: "ml-1 text-blue-600 hover:text-blue-800",
+                                          data: { 
+                                            "turbo-method": "delete",
+                                            "turbo-confirm": "Remove #{chore.title} from #{child.name}?" 
+                                          } %>
+                            </span>
+                          <% end %>
+                        <% else %>
+                          <span class="text-gray-400 text-xs">None</span>
+                        <% end %>
+                      </div>
+                      
+                      <!-- Assignment Form -->
+                      <div class="mt-2">
+                        <%= form_with url: assign_constant_chore_admin_chores_path, method: :patch, local: true, class: "flex items-center space-x-2" do |f| %>
+                          <%= f.hidden_field :chore_id, value: chore.id %>
+                          <%= f.select :child_id, 
+                                       options_from_collection_for_select(@children.reject { |c| chore.assigned_children.include?(c) }, 
+                                                                          :id, :name), 
+                                       { prompt: "Assign to..." },
+                                       { class: "text-xs border border-gray-300 rounded px-2 py-1" } %>
+                          <%= f.submit "Assign", class: "bg-blue-500 text-white px-2 py-1 text-xs rounded hover:bg-blue-600" %>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center space-x-2 ml-4">
+                    <%= link_to "Edit", edit_admin_chore_path(chore), 
+                                class: "text-blue-600 hover:text-blue-800 text-sm" %>
+                    <%= link_to chore.active? ? "Deactivate" : "Activate", 
+                                toggle_active_admin_chore_path(chore), 
+                                method: :patch,
+                                class: "text-gray-600 hover:text-gray-800 text-sm" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="p-8 text-center text-gray-500">
+              <p>No constant chores yet.</p>
+              <p class="text-sm">Create chores that children do every day.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Rotational Chores -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-bold text-gray-900">Rotational Chores</h2>
+          <p class="text-gray-600 text-sm mt-1">Randomly distributed among children</p>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+          <% rotational_chores = @chores.select(&:rotational?) %>
+          <% if rotational_chores.any? %>
+            <% rotational_chores.each do |chore| %>
+              <div class="p-4">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                      <h3 class="font-semibold text-gray-900"><%= chore.title %></h3>
+                      <% unless chore.active? %>
+                        <span class="bg-gray-100 text-gray-600 px-2 py-1 text-xs rounded">Inactive</span>
+                      <% end %>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-1"><%= chore.description %></p>
+                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                      <span><%= chore.difficulty.humanize %></span>
+                      <% if chore.estimated_minutes %>
+                        <span><%= chore.estimated_duration %></span>
+                      <% end %>
+                      <% if chore.min_age || chore.max_age %>
+                        <span>Ages <%= chore.min_age || "any" %>-<%= chore.max_age || "any" %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center space-x-2 ml-4">
+                    <%= link_to "Edit", edit_admin_chore_path(chore), 
+                                class: "text-blue-600 hover:text-blue-800 text-sm" %>
+                    <%= link_to chore.active? ? "Deactivate" : "Activate", 
+                                toggle_active_admin_chore_path(chore), 
+                                method: :patch,
+                                class: "text-gray-600 hover:text-gray-800 text-sm" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="p-8 text-center text-gray-500">
+              <p>No rotational chores yet.</p>
+              <p class="text-sm">Create chores that rotate among children.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

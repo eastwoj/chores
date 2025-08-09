@@ -15,12 +15,36 @@ Rails.application.routes.draw do
   root "home#index"
   
   # Child kiosk routes
-  resources :child_kiosk, only: [:index, :show], path: "kiosk"
+  resources :child_kiosk, only: [:index, :show], path: "kiosk" do
+    member do
+      patch :complete_chore
+      patch :complete_extra
+    end
+  end
   
   # Admin routes for parents
   namespace :admin do
     root "dashboard#index"
     resources :dashboard, only: [:index]
+    resources :chores do
+      member do
+        patch :toggle_active
+      end
+      collection do
+        patch :assign_constant_chore
+        delete :remove_constant_assignment
+        post :generate_daily_lists
+      end
+    end
+    resources :extras do
+      member do
+        patch :toggle_active
+      end
+      collection do
+        patch :assign_extra
+        delete :remove_extra_assignment
+      end
+    end
   end
 
   # Redirect after sign in

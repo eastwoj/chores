@@ -1,7 +1,8 @@
 class Extra < ApplicationRecord
   belongs_to :family
   has_many :extra_completions, dependent: :destroy
-  has_many :children, through: :extra_completions
+  has_many :extra_assignments, dependent: :destroy
+  has_many :assigned_children, through: :extra_assignments, source: :child
 
   validates :title, presence: true, length: { maximum: 100 }
   validates :reward_amount, presence: true, numericality: { greater_than: 0 }

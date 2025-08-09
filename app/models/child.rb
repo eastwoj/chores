@@ -10,6 +10,9 @@ class Child < ApplicationRecord
   has_many :constant_chores, -> { where(chore_type: :constant) }, 
     through: :chore_assignments, 
     source: :chore
+  has_many :chore_rotations, dependent: :destroy
+  has_many :extra_assignments, dependent: :destroy
+  has_many :assigned_extras, through: :extra_assignments, source: :extra
 
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :birth_date, presence: true
@@ -37,13 +40,14 @@ class Child < ApplicationRecord
   end
 
   def current_period_earnings
-    # Simple calculation for now - sum base_value of completed chores
-    chore_completions.joins(:chore).where(status: 'completed').sum('chores.base_value') || 0
+    # Only count earnings from approved extras, not regular chores
+    extra_completions.approved.sum(:earned_amount) || 0
   end
 
   def lifetime_earnings
     current_period_earnings
   end
+
 
   def activate!
     update!(active: true)

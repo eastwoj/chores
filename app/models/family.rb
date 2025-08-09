@@ -18,6 +18,10 @@ class Family < ApplicationRecord
     children.where(active: false)
   end
 
+  def generate_daily_chore_lists(date = Date.current)
+    DailyChoreListGenerator.new(self, date).generate_for_all_children
+  end
+
   private
 
   def create_default_family_setting

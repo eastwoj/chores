@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_223338) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_232444) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -89,6 +89,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_223338) do
     t.decimal "earned_amount", precision: 8, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "assigned_date"
+    t.index ["child_id", "assigned_date"], name: "index_chore_completions_on_child_id_and_assigned_date"
     t.index ["child_id", "created_at"], name: "index_chore_completions_on_child_id_and_created_at"
     t.index ["child_id"], name: "index_chore_completions_on_child_id"
     t.index ["chore_id"], name: "index_chore_completions_on_chore_id"
@@ -108,6 +110,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_223338) do
     t.index ["child_id", "start_date", "interval"], name: "index_unique_chore_list_per_child_date_interval", unique: true
     t.index ["child_id"], name: "index_chore_lists_on_child_id"
     t.index ["start_date"], name: "index_chore_lists_on_start_date"
+  end
+
+  create_table "chore_rotations", force: :cascade do |t|
+    t.bigint "chore_id", null: false
+    t.bigint "child_id", null: false
+    t.date "assigned_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_id", "assigned_date"], name: "index_chore_rotations_on_child_id_and_assigned_date"
+    t.index ["child_id"], name: "index_chore_rotations_on_child_id"
+    t.index ["chore_id", "assigned_date"], name: "index_chore_rotations_on_chore_id_and_assigned_date"
+    t.index ["chore_id", "child_id", "assigned_date"], name: "idx_on_chore_id_child_id_assigned_date_7b50690981", unique: true
+    t.index ["chore_id"], name: "index_chore_rotations_on_chore_id"
   end
 
   create_table "chores", force: :cascade do |t|
@@ -134,6 +149,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_223338) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["child_id"], name: "index_daily_chore_lists_on_child_id"
+  end
+
+  create_table "extra_assignments", force: :cascade do |t|
+    t.bigint "extra_id", null: false
+    t.bigint "child_id", null: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_id"], name: "index_extra_assignments_on_child_id"
+    t.index ["extra_id", "child_id"], name: "index_extra_assignments_on_extra_id_and_child_id", unique: true
+    t.index ["extra_id"], name: "index_extra_assignments_on_extra_id"
   end
 
   create_table "extra_completions", force: :cascade do |t|
@@ -207,8 +233,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_223338) do
   add_foreign_key "chore_completions", "chore_lists"
   add_foreign_key "chore_completions", "chores"
   add_foreign_key "chore_lists", "children"
+  add_foreign_key "chore_rotations", "children"
+  add_foreign_key "chore_rotations", "chores"
   add_foreign_key "chores", "families"
   add_foreign_key "daily_chore_lists", "children"
+  add_foreign_key "extra_assignments", "children"
+  add_foreign_key "extra_assignments", "extras"
   add_foreign_key "extra_completions", "adults", column: "approved_by_id"
   add_foreign_key "extra_completions", "children"
   add_foreign_key "extra_completions", "extras"

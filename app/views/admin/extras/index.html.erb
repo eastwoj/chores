@@ -1,0 +1,128 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Extra Tasks Management</h1>
+          <p class="text-gray-600 mt-1">Optional high-value tasks that earn money</p>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <%= link_to admin_root_path, class: "text-gray-600 hover:text-gray-800" do %>
+            ← Back to Dashboard
+          <% end %>
+          <%= link_to "New Extra", new_admin_extra_path, 
+                      class: "bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Stats -->
+    <div class="mb-8 text-sm text-gray-600">
+      <%= @extras.count %> extras total
+    </div>
+
+    <!-- Extras List -->
+    <div class="space-y-6">
+      <% if @extras.any? %>
+        <% @extras.each do |extra| %>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center space-x-3">
+                  <h3 class="text-xl font-bold text-gray-900"><%= extra.title %></h3>
+                  <span class="bg-green-100 text-green-800 px-3 py-1 text-sm rounded-full font-semibold">
+                    $<%= sprintf("%.2f", extra.reward_amount) %>
+                  </span>
+                  <% unless extra.active? %>
+                    <span class="bg-gray-100 text-gray-600 px-2 py-1 text-xs rounded">Inactive</span>
+                  <% end %>
+                </div>
+                
+                <p class="text-gray-600 mt-2"><%= extra.description %></p>
+                
+                <div class="flex items-center space-x-6 mt-3 text-sm text-gray-500">
+                  <span>Available: <%= extra.available_from.strftime("%m/%d") %> - <%= extra.available_until.strftime("%m/%d") %></span>
+                  <% if extra.max_completions %>
+                    <span>Max completions: <%= extra.max_completions %></span>
+                  <% else %>
+                    <span>Unlimited completions</span>
+                  <% end %>
+                  <% if extra.available_today? %>
+                    <span class="text-green-600 font-medium">Available Today</span>
+                  <% else %>
+                    <span class="text-gray-400">Not Available Today</span>
+                  <% end %>
+                </div>
+
+                <!-- Assigned Children -->
+                <div class="mt-4">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-sm font-medium text-gray-700">Assigned to:</span>
+                    <% if extra.assigned_children.any? %>
+                      <% extra.assigned_children.each do |child| %>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 text-xs rounded-full">
+                          <%= child.name %>
+                          <%= link_to "×", remove_extra_assignment_admin_extras_path(assignment_id: extra.extra_assignments.find_by(child: child).id), 
+                                      class: "ml-1 text-blue-600 hover:text-blue-800",
+                                      data: { 
+                                        "turbo-method": "delete",
+                                        "turbo-confirm": "Remove #{extra.title} from #{child.name}?" 
+                                      } %>
+                        </span>
+                      <% end %>
+                    <% else %>
+                      <span class="text-gray-400 text-sm">None</span>
+                    <% end %>
+                  </div>
+                  
+                  <!-- Assignment Form -->
+                  <div class="flex items-center space-x-2">
+                    <%= form_with url: assign_extra_admin_extras_path, method: :patch, local: true, class: "flex items-center space-x-2" do |f| %>
+                      <%= f.hidden_field :extra_id, value: extra.id %>
+                      <%= f.select :child_id, 
+                                   options_from_collection_for_select(@children.reject { |c| extra.assigned_children.include?(c) }, 
+                                                                      :id, :name), 
+                                   { prompt: "Assign to child..." },
+                                   { class: "text-sm border border-gray-300 rounded px-3 py-1" } %>
+                      <%= f.submit "Assign", class: "bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-3 ml-6">
+                <%= link_to "Edit", edit_admin_extra_path(extra), 
+                            class: "text-blue-600 hover:text-blue-800" %>
+                <%= link_to extra.active? ? "Deactivate" : "Activate", 
+                            toggle_active_admin_extra_path(extra), 
+                            method: :patch,
+                            class: "text-gray-600 hover:text-gray-800" %>
+                <%= link_to "Delete", admin_extra_path(extra), 
+                            method: :delete,
+                            data: { 
+                              "turbo-method": "delete",
+                              "turbo-confirm": "Are you sure? This cannot be undone." 
+                            },
+                            class: "text-red-600 hover:text-red-800" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <div class="text-6xl mb-4">💰</div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">No Extra Tasks Yet</h2>
+          <p class="text-gray-600 mb-6">Create optional high-value tasks that children can do to earn money.</p>
+          <%= link_to "Create Your First Extra", new_admin_extra_path, 
+                      class: "bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

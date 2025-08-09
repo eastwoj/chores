@@ -3,7 +3,9 @@ class Admin::DashboardController < Admin::BaseController
     authorize :admin_dashboard, :index?
     
     @family = current_adult.family
-    @children = @family.children
-    @today_chore_lists = @family.daily_chore_lists.includes(:child, :chore_completions).where(date: Date.current)
+    @children = @family.children.active
+    @today_chore_lists = ChoreList.joins(:child)
+                                  .where(child: @children, start_date: Date.current, interval: :daily)
+                                  .includes(:chore_completions, :child)
   end
 end

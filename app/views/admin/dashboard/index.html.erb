@@ -45,6 +45,7 @@
               <p class="text-gray-700">
                 <span class="font-medium">Current Earnings:</span> 
                 $<%= sprintf("%.2f", child.total_earnings || 0) %>
+                <span class="text-gray-500 text-sm">(from completed extras)</span>
               </p>
               
               <% today_list = @today_chore_lists.find { |list| list.child_id == child.id } %>
@@ -63,6 +64,13 @@
                 </div>
               <% else %>
                 <p class="text-gray-500">No chores assigned today</p>
+                <div class="mt-2">
+                  <%= form_with url: generate_daily_lists_admin_chores_path, method: :post, local: true, class: "inline" do %>
+                    <button type="submit" class="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                      Generate Today's Lists
+                    </button>
+                  <% end %>
+                </div>
               <% end %>
             </div>
           </div>
@@ -75,12 +83,16 @@
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <button class="bg-blue-500 text-white p-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
-          Manage Chores
-        </button>
-        <button class="bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-          View Reports
-        </button>
+        <%= link_to admin_chores_path, class: "block" do %>
+          <button class="w-full bg-blue-500 text-white p-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+            Manage Chores
+          </button>
+        <% end %>
+        <%= link_to admin_extras_path, class: "block" do %>
+          <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+            Manage Extras
+          </button>
+        <% end %>
         <button class="bg-purple-500 text-white p-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
           Settings
         </button>

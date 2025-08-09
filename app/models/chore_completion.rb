@@ -6,6 +6,9 @@ class ChoreCompletion < ApplicationRecord
 
   validates :status, presence: true
   validates :earned_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :assigned_date, presence: true
+
+  before_validation :set_default_values, on: :create
 
   enum :status, { 
     pending: 0, 
@@ -50,5 +53,13 @@ class ChoreCompletion < ApplicationRecord
     return false if reviewed_at.present?
     
     completed_at < hours.hours.ago
+  end
+
+
+  private
+
+  def set_default_values
+    # Regular chores don't earn money, only points
+    self.earned_amount ||= 0
   end
 end

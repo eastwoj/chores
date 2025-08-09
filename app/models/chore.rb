@@ -3,6 +3,7 @@ class Chore < ApplicationRecord
   has_many :chore_assignments, dependent: :destroy
   has_many :assigned_children, through: :chore_assignments, source: :child
   has_many :chore_completions, dependent: :destroy
+  has_many :chore_rotations, dependent: :destroy
 
   validates :title, presence: true, length: { maximum: 100 }
   validates :chore_type, presence: true
@@ -19,9 +20,6 @@ class Chore < ApplicationRecord
     title
   end
 
-  def points
-    base_value
-  end
 
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }

@@ -23,6 +23,10 @@ class AdminPolicy < ApplicationPolicy
     user_is_admin_or_parent?
   end
 
+  def manage_chores?
+    user_is_admin_or_parent?
+  end
+
   private
 
   def user_is_authorized_adult?

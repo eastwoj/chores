@@ -30,19 +30,20 @@
                 <h3 class="text-xl font-semibold text-gray-900">
                   <%= completion.chore.name %>
                 </h3>
-                <% if completion.chore.points.present? && completion.chore.points > 0 %>
-                  <p class="text-gray-600">
-                    <%= completion.chore.points %> points
-                  </p>
-                <% end %>
+                <p class="text-gray-600 text-sm">
+                  Regular chore - no rewards
+                </p>
               </div>
             </div>
 
             <!-- Action Button -->
             <% unless completion.completed? %>
-              <button class="bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-                Mark Done
-              </button>
+              <%= form_with url: complete_chore_child_kiosk_path(@child), method: :patch, local: true, class: "inline" do |f| %>
+                <%= f.hidden_field :completion_id, value: completion.id %>
+                <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                  Mark Done
+                </button>
+              <% end %>
             <% end %>
           </div>
         <% end %>
@@ -59,6 +60,78 @@
           <div class="bg-green-500 h-4 rounded-full" style="width: <%= (completed_count.to_f / total_count * 100).round(1) %>%"></div>
         </div>
       </div>
+
+      <!-- Extras Section -->
+      <% if @available_extras.any? %>
+        <div class="mt-12">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">💰 Extra Tasks</h2>
+            <p class="text-gray-600">Optional tasks you can do to earn money!</p>
+          </div>
+
+          <div class="space-y-4">
+            <% @available_extras.each do |extra_data| %>
+              <% extra = extra_data[:extra] %>
+              <% completion = extra_data[:completion] %>
+              <% can_complete = extra_data[:can_complete] %>
+              
+              <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <!-- Completion Status -->
+                  <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center <%= completion ? 'bg-green-500 border-green-500' : 'border-green-300' %>">
+                    <% if completion %>
+                      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                    <% else %>
+                      <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <% end %>
+                  </div>
+                  
+                  <!-- Extra Info -->
+                  <div>
+                    <h3 class="text-xl font-semibold text-gray-900">
+                      <%= extra.title %>
+                    </h3>
+                    <p class="text-green-600 font-bold">
+                      $<%= sprintf("%.2f", extra.reward_amount) %>
+                    </p>
+                    <% if extra.description.present? %>
+                      <p class="text-gray-600 text-sm mt-1">
+                        <%= extra.description %>
+                      </p>
+                    <% end %>
+                  </div>
+                </div>
+
+                <!-- Action Button -->
+                <% if can_complete %>
+                  <%= form_with url: complete_extra_child_kiosk_path(@child), method: :patch, local: true, class: "inline" do |f| %>
+                    <%= f.hidden_field :extra_id, value: extra.id %>
+                    <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                      Earn $<%= sprintf("%.2f", extra.reward_amount) %>
+                    </button>
+                  <% end %>
+                <% elsif completion %>
+                  <div class="text-green-600 font-semibold px-6 py-2">
+                    <% if completion.approved? %>
+                      ✓ Approved - Earned!
+                    <% elsif completion.rejected? %>
+                      ✗ Rejected
+                    <% else %>
+                      ⏳ Awaiting Approval
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-gray-400 px-6 py-2">
+                    Not Available
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
 
     <% else %>
       <!-- No Chores Today -->
