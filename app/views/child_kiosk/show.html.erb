@@ -141,7 +141,7 @@
               <% end %>
               
               <!-- Chore Info -->
-              <div>
+              <div class="flex-1">
                 <h3 class="text-xl font-semibold text-gray-900">
                   <%= completion.chore.name %>
                 </h3>
@@ -153,14 +153,29 @@
                   <p class="text-green-600 text-sm font-medium">
                     ✓ Approved by parent
                   </p>
+                  <% if completion.review_notes.present? %>
+                    <p class="text-green-700 text-sm mt-1 italic">
+                      "📝 <%= completion.review_notes %>"
+                    </p>
+                  <% end %>
                 <% elsif completion.reviewed_unsatisfactory? %>
                   <p class="text-red-600 text-sm font-medium">
                     ⚠ Needs to be redone
                   </p>
+                  <% if completion.review_notes.present? %>
+                    <p class="text-red-700 text-sm mt-1 italic">
+                      "📝 <%= completion.review_notes %>"
+                    </p>
+                  <% end %>
                 <% else %>
                   <p class="text-gray-600 text-sm">
                     Daily responsibility
                   </p>
+                  <% if completion.review_notes.present? %>
+                    <p class="text-blue-700 text-sm mt-1 italic">
+                      "📝 <%= completion.review_notes %>"
+                    </p>
+                  <% end %>
                 <% end %>
               </div>
             </div>
