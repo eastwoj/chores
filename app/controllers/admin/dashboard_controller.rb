@@ -8,6 +8,24 @@ class Admin::DashboardController < Admin::BaseController
                                   .where(child: @children, start_date: Date.current, interval: :daily)
                                   .includes(:chore_completions, :child)
     
+    # Pay period information
+    @current_pay_period = @family.current_pay_period
+    @payout_service = PayoutService.new(@family, current_adult)
+    @payout_preview = @payout_service.payout_preview if @current_pay_period
+    
+    # Notifications
+    @unread_notifications = @family.payout_notifications
+                                   .where(adult: current_adult)
+                                   .unread
+                                   .recent
+                                   .limit(5)
+    
+    # Send payout reminder if needed
+    if @payout_service.next_payout_reminder_needed?
+      @payout_service.send_payout_reminder!
+      @unread_notifications = @unread_notifications.reload
+    end
+    
     # Get pending review counts for the dashboard button
     @pending_chore_completions = ChoreCompletion.joins(:child)
                                                 .where(child: @family.children)

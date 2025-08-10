@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            Process Payout
+          </h1>
+          <p class="text-gray-600 mt-1">
+            <%= @current_pay_period.start_date.strftime("%B %d") %> - <%= @current_pay_period.end_date.strftime("%B %d, %Y") %>
+          </p>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <%= link_to admin_dashboard_path, 
+                      class: "text-gray-600 hover:text-gray-900 font-medium" do %>
+            ← Back to Dashboard
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if @can_payout %>
+      <!-- Payout Summary -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Payout Summary</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-2">Pay Period</h3>
+            <p class="text-gray-600">
+              <%= @current_pay_period.frequency_description %> period
+            </p>
+            <p class="text-sm text-gray-500">
+              <%= @current_pay_period.start_date.strftime("%b %d") %> - 
+              <%= @current_pay_period.end_date.strftime("%b %d, %Y") %>
+            </p>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-2">Total Payout</h3>
+            <p class="text-3xl font-bold text-green-600">
+              $<%= sprintf("%.2f", @total_payout) %>
+            </p>
+          </div>
+        </div>
+        
+        <!-- Individual Child Earnings -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-gray-900">Individual Earnings</h3>
+          
+          <% @earnings_by_child.each do |child_id, earnings| %>
+            <div class="bg-gray-50 rounded-lg p-4 flex justify-between items-center">
+              <div>
+                <h4 class="font-medium text-gray-900"><%= earnings[:child].name %></h4>
+                <div class="text-sm text-gray-600 mt-1">
+                  Chores: $<%= sprintf("%.2f", earnings[:chore_earnings]) %> • 
+                  Extras: $<%= sprintf("%.2f", earnings[:extra_earnings]) %>
+                </div>
+              </div>
+              
+              <div class="text-right">
+                <p class="text-xl font-bold text-green-600">
+                  $<%= sprintf("%.2f", earnings[:total]) %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Payout Action -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-gray-700">
+                Ready to process payout? This will mark the current pay period as complete and start a new period.
+              </p>
+              <p class="text-sm text-gray-500 mt-1">
+                Make sure all children have completed their daily chores before proceeding.
+              </p>
+            </div>
+            
+            <div class="ml-6">
+              <%= form_with url: admin_payout_path, method: :post, local: true do %>
+                <button type="submit" 
+                        class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+                        onclick="return confirm('Are you sure you want to process this payout? This action cannot be undone.')">
+                  Process Payout
+                </button>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    <% else %>
+      <!-- Payout Blocked -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="text-center py-8">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Payout Currently Blocked</h2>
+          <p class="text-gray-600 mb-6">
+            <%= @blocked_reason %>
+          </p>
+          
+          <%= link_to admin_dashboard_path, 
+                      class: "inline-block bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors" do %>
+            Return to Dashboard
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

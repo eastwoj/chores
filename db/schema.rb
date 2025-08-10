@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_232444) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_10_223929) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -210,7 +210,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_232444) do
     t.text "notification_settings"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "payout_frequency", default: "weekly", null: false
+    t.integer "payout_day", default: 0, null: false
     t.index ["family_id"], name: "index_family_settings_on_family_id"
+  end
+
+  create_table "pay_periods", force: :cascade do |t|
+    t.bigint "family_id", null: false
+    t.string "frequency", null: false
+    t.integer "payout_day"
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "last_payout_at"
+    t.boolean "current_period", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id", "current_period"], name: "index_pay_periods_on_family_id_and_current_period", unique: true, where: "(current_period = true)"
+    t.index ["family_id", "status"], name: "index_pay_periods_on_family_id_and_status"
+    t.index ["family_id"], name: "index_pay_periods_on_family_id"
+    t.index ["start_date", "end_date"], name: "index_pay_periods_on_start_date_and_end_date"
+  end
+
+  create_table "payout_notifications", force: :cascade do |t|
+    t.bigint "family_id", null: false
+    t.bigint "pay_period_id", null: false
+    t.bigint "adult_id", null: false
+    t.string "title"
+    t.text "message"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["adult_id"], name: "index_payout_notifications_on_adult_id"
+    t.index ["family_id"], name: "index_payout_notifications_on_family_id"
+    t.index ["pay_period_id"], name: "index_payout_notifications_on_pay_period_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -244,4 +277,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_232444) do
   add_foreign_key "extra_completions", "extras"
   add_foreign_key "extras", "families"
   add_foreign_key "family_settings", "families"
+  add_foreign_key "pay_periods", "families"
+  add_foreign_key "payout_notifications", "adults"
+  add_foreign_key "payout_notifications", "families"
+  add_foreign_key "payout_notifications", "pay_periods"
 end

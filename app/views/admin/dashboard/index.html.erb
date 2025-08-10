@@ -44,9 +44,12 @@
             
             <div class="space-y-2">
               <p class="text-gray-700">
-                <span class="font-medium">Current Earnings:</span> 
-                $<%= sprintf("%.2f", child.total_earnings || 0) %>
-                <span class="text-gray-500 text-sm">(from completed extras)</span>
+                <span class="font-medium">Current Period:</span> 
+                $<%= sprintf("%.2f", child.current_period_earnings || 0) %>
+              </p>
+              <p class="text-gray-600 text-sm">
+                <span class="font-medium">All-Time Total:</span> 
+                $<%= sprintf("%.2f", child.all_time_earnings || 0) %>
               </p>
               
               <% today_list = @today_chore_lists.find { |list| list.child_id == child.id } %>
@@ -79,6 +82,107 @@
       </div>
     </div>
 
+    <!-- Notifications -->
+    <% if @unread_notifications.any? %>
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">🔔 Notifications</h2>
+        
+        <div class="space-y-4">
+          <% @unread_notifications.each do |notification| %>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold text-blue-900">
+                    <%= notification.title %>
+                  </h3>
+                  <p class="text-blue-800 text-sm mt-1 whitespace-pre-line">
+                    <%= notification.message %>
+                  </p>
+                  <p class="text-blue-600 text-xs mt-2">
+                    <%= time_ago_in_words(notification.created_at) %> ago
+                  </p>
+                </div>
+                <div class="ml-4 flex-shrink-0">
+                  <% if notification.pay_period.can_payout? %>
+                    <%= link_to admin_payout_path, class: "inline-block" do %>
+                      <button class="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600 transition-colors">
+                        Process Payout
+                      </button>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Pay Period Overview -->
+    <% if @current_pay_period && @payout_preview && @payout_preview[:success] %>
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Current Pay Period</h2>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">Period Dates</h3>
+              <p class="text-gray-600">
+                <%= @current_pay_period.start_date.strftime("%b %d") %> - 
+                <%= @current_pay_period.end_date.strftime("%b %d, %Y") %>
+              </p>
+              <p class="text-sm text-gray-500 mt-1">
+                <%= @current_pay_period.frequency_description %>
+              </p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">Total Earnings</h3>
+              <p class="text-2xl font-bold text-green-600">
+                $<%= sprintf("%.2f", @payout_preview[:total_payout] || 0) %>
+              </p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">Payout Status</h3>
+              <% if @payout_preview[:can_payout] %>
+                <%= link_to admin_payout_path, class: "inline-block" do %>
+                  <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                    Process Payout
+                  </button>
+                <% end %>
+              <% else %>
+                <div class="text-orange-600">
+                  <p class="font-medium">Payout Blocked</p>
+                  <p class="text-sm text-gray-600 mt-1">
+                    <%= @payout_preview[:blocked_reason] %>
+                  </p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <% if @payout_preview[:earnings_by_child].any? %>
+            <div class="mt-6 pt-6 border-t border-gray-200">
+              <h4 class="font-semibold text-gray-900 mb-4">Earnings Breakdown</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <% @payout_preview[:earnings_by_child].each do |child_id, earnings| %>
+                  <div class="bg-gray-50 rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900"><%= earnings[:child].name %></h5>
+                    <p class="text-lg font-bold text-green-600">$<%= sprintf("%.2f", earnings[:total]) %></p>
+                    <p class="text-sm text-gray-600">
+                      Chores: $<%= sprintf("%.2f", earnings[:chore_earnings]) %> • 
+                      Extras: $<%= sprintf("%.2f", earnings[:extra_earnings]) %>
+                    </p>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
     <!-- Quick Actions -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
@@ -103,6 +207,11 @@
         <%= link_to admin_extras_path, class: "block" do %>
           <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
             Manage Extras
+          </button>
+        <% end %>
+        <%= link_to admin_settings_path, class: "block" do %>
+          <button class="w-full bg-purple-500 text-white p-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
+            ⚙️ Settings
           </button>
         <% end %>
         <%= link_to child_kiosk_index_path, class: "block" do %>

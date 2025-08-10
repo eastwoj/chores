@@ -4,6 +4,8 @@ class FamilySetting < ApplicationRecord
   validates :payout_interval_days, presence: true, numericality: { greater_than: 0 }
   validates :base_chore_value, presence: true, numericality: { greater_than: 0 }
   validates :auto_approve_after_hours, presence: true, numericality: { greater_than: 0 }
+  validates :payout_frequency, presence: true, inclusion: { in: %w[weekly biweekly monthly] }
+  validates :payout_day, presence: true, numericality: { in: 0..6 }
 
   def auto_approve_enabled?
     auto_approve_after_hours > 0
@@ -25,15 +27,19 @@ class FamilySetting < ApplicationRecord
   end
 
   def payout_frequency_description
-    case payout_interval_days
-    when 7
+    case payout_frequency
+    when "weekly"
       "Weekly"
-    when 14
+    when "biweekly"
       "Bi-weekly"
-    when 30
+    when "monthly"
       "Monthly"
     else
-      "Every #{payout_interval_days} days"
+      payout_frequency.humanize
     end
+  end
+
+  def payout_day_name
+    Date::DAYNAMES[payout_day]
   end
 end

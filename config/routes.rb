@@ -27,6 +27,8 @@ Rails.application.routes.draw do
   namespace :admin do
     root "dashboard#index"
     resources :dashboard, only: [:index]
+    resource :payout, only: [:show, :create]
+    resource :settings, only: [:show, :update]
     resources :reviews, only: [:index] do
       member do
         patch :approve_chore
