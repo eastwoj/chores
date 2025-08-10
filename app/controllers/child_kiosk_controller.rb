@@ -7,6 +7,7 @@ class ChildKioskController < ApplicationController
     @child = Child.find(params[:id])
     @today_chore_list = find_or_create_daily_chore_list
     @available_extras = find_available_extras
+    @show_celebration = params[:celebration] == "true"
   end
 
   def complete_chore
@@ -16,7 +17,16 @@ class ChildKioskController < ApplicationController
     # Verify this completion belongs to this child
     if completion.child == @child && completion.assigned_date == Date.current
       completion.mark_completed!
-      flash[:notice] = "Great job! You completed #{completion.chore.title}!"
+      
+      # Check if all chores are now completed
+      chore_list = @child.chore_lists.find_by(start_date: Date.current, interval: :daily)
+      if chore_list && chore_list.all_completed?
+        flash[:notice] = "🎉 AMAZING! You completed ALL your chores today! 🎉"
+        redirect_to child_kiosk_path(@child, celebration: true)
+        return
+      else
+        flash[:notice] = "Great job! You completed #{completion.chore.title}!"
+      end
     else
       flash[:alert] = "Something went wrong. Please try again."
     end
