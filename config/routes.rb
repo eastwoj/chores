@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :child_kiosk, only: [:index, :show], path: "kiosk" do
     member do
       patch :complete_chore
+      patch :uncomplete_chore
       patch :complete_extra
     end
   end

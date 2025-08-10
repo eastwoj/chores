@@ -27,6 +27,13 @@ class ChoreCompletion < ApplicationRecord
     )
   end
 
+  def mark_uncompleted!
+    update!(
+      status: :pending,
+      completed_at: nil
+    )
+  end
+
   def mark_reviewed_satisfactory!(reviewer)
     update!(
       status: :reviewed_satisfactory,

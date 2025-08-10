@@ -24,6 +24,21 @@ class ChildKioskController < ApplicationController
     redirect_to child_kiosk_path(@child)
   end
 
+  def uncomplete_chore
+    @child = Child.find(params[:id])
+    completion = ChoreCompletion.find(params[:completion_id])
+    
+    # Verify this completion belongs to this child and is completed but not yet reviewed
+    if completion.child == @child && completion.assigned_date == Date.current && completion.completed? && !completion.reviewed_at?
+      completion.mark_uncompleted!
+      flash[:notice] = "#{completion.chore.title} marked as not complete. You can redo it when ready."
+    else
+      flash[:alert] = "Cannot uncheck this chore."
+    end
+
+    redirect_to child_kiosk_path(@child)
+  end
+
   def complete_extra
     @child = Child.find(params[:id])
     extra = Extra.find(params[:extra_id])
