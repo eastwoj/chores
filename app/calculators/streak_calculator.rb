@@ -8,7 +8,7 @@ class StreakCalculator
     current_date = Date.current
 
     loop do
-      list = @child.daily_chore_lists.find_by(date: current_date)
+      list = @child.chore_lists.find_by(start_date: current_date, interval: :daily)
       break if list.nil?
       
       percentage = completion_percentage_for(list)
@@ -22,8 +22,9 @@ class StreakCalculator
   end
 
   def longest_completion_streak
-    all_lists = @child.daily_chore_lists
-                      .order(:date)
+    all_lists = @child.chore_lists
+                      .where(interval: :daily)
+                      .order(:start_date)
                       .includes(:chore_completions)
     
     return 0 if all_lists.empty?
@@ -46,7 +47,8 @@ class StreakCalculator
   def current_bonus
     streak = current_completion_streak
     milestone_bonuses.each do |days, bonus|
-      return bonus if streak >= days && (streak < next_milestone_after(days) || next_milestone_after(days).nil?)
+      next_milestone = next_milestone_after(days)
+      return bonus if streak >= days && (next_milestone.nil? || streak < next_milestone)
     end
     0.0
   end

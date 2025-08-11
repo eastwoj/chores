@@ -30,7 +30,8 @@ class SimpleCompletionPercentageTest < ActiveSupport::TestCase
     create(:chore_completion, :completed,
            chore_list: chore_list,
            chore: chore,
-           child: child)
+           child: child,
+           assigned_date: Date.current)
     
     calculator = CompletionPercentageCalculator.new(chore_list)
     assert_equal 100, calculator.calculate

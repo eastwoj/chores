@@ -4,16 +4,16 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   setup do
     @family = create(:family)
     @child = create(:child, family: @family)
-    @daily_chore_list = create(:daily_chore_list, child: @child)
-    @calculator = CompletionPercentageCalculator.new(@daily_chore_list)
+    @chore_list = create(:chore_list, child: @child)
+    @calculator = CompletionPercentageCalculator.new(@chore_list)
   end
 
-  test "initializes with daily chore list" do
-    assert_equal @daily_chore_list, @calculator.instance_variable_get(:@daily_chore_list)
+  test "initializes with chore list" do
+    assert_equal @chore_list, @calculator.instance_variable_get(:@daily_chore_list)
   end
 
   test "calculate returns 0 when no chores exist" do
-    @daily_chore_list.chore_completions.destroy_all
+    @chore_list.chore_completions.destroy_all
     
     assert_equal 0, @calculator.calculate
   end
@@ -21,10 +21,12 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   test "calculate returns 0 when no chores are completed" do
     # Create pending chore completions
     3.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
-        status: :pending
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
+        status: :pending,
+        assigned_date: Date.current
       )
     end
 
@@ -34,11 +36,13 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   test "calculate returns 100 when all chores are completed" do
     # Create completed chore completions
     3.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
         status: :completed,
-        completed_at: Time.current
+        completed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
@@ -48,19 +52,23 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   test "calculate returns correct percentage for partial completion" do
     # Create mix of completed and pending chores
     2.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
         status: :completed,
-        completed_at: Time.current
+        completed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
     3.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:clean_room),
-        child: children(:alice),
-        status: :pending
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
+        status: :pending,
+        assigned_date: Date.current
       )
     end
 
@@ -71,20 +79,24 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   test "calculate counts reviewed_satisfactory as completed" do
     # Create reviewed satisfactory completions
     2.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
         status: :reviewed_satisfactory,
         completed_at: 1.day.ago,
-        reviewed_at: Time.current
+        reviewed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
     # Create pending completion
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:clean_room),
-      child: children(:alice),
-      status: :pending
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
+      status: :pending,
+      assigned_date: Date.current
     )
 
     # 2 completed out of 3 total = 67% (rounded)
@@ -93,20 +105,24 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
 
   test "calculate does not count reviewed_unsatisfactory as completed" do
     # Create unsatisfactory completion
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:make_bed),
-      child: children(:alice),
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
       status: :reviewed_unsatisfactory,
       completed_at: 1.day.ago,
-      reviewed_at: Time.current
+      reviewed_at: Time.current,
+      assigned_date: Date.current
     )
 
     # Create completed completion
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:clean_room),
-      child: children(:alice),
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
       status: :completed,
-      completed_at: Time.current
+      completed_at: Time.current,
+      assigned_date: Date.current
     )
 
     # 1 completed out of 2 total = 50%
@@ -116,18 +132,22 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   test "calculate rounds to nearest integer" do
     # Create scenario that results in 66.66...%
     2.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
         status: :completed,
-        completed_at: Time.current
+        completed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:clean_room),
-      child: children(:alice),
-      status: :pending
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
+      status: :pending,
+      assigned_date: Date.current
     )
 
     # 2 completed out of 3 total = 66.666...% -> 67%
@@ -137,19 +157,23 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
   test "calculate handles large numbers correctly" do
     # Create 100 chores, 33 completed
     33.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
         status: :completed,
-        completed_at: Time.current
+        completed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
     67.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:clean_room),
-        child: children(:alice),
-        status: :pending
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
+        status: :pending,
+        assigned_date: Date.current
       )
     end
 
@@ -158,33 +182,41 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
 
   test "completed_chores counts all completed statuses" do
     # Create various completion statuses
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:make_bed),
-      child: children(:alice),
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
       status: :completed,
-      completed_at: Time.current
+      completed_at: Time.current,
+      assigned_date: Date.current
     )
 
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:clean_room),
-      child: children(:alice),
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
       status: :reviewed_satisfactory,
       completed_at: 1.day.ago,
-      reviewed_at: Time.current
+      reviewed_at: Time.current,
+      assigned_date: Date.current
     )
 
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:organize_garage),
-      child: children(:alice),
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
       status: :reviewed_unsatisfactory,
       completed_at: 1.day.ago,
-      reviewed_at: Time.current
+      reviewed_at: Time.current,
+      assigned_date: Date.current
     )
 
-    @daily_chore_list.chore_completions.create!(
-      chore: chores(:take_out_trash),
-      child: children(:alice),
-      status: :pending
+    create(:chore_completion,
+      chore_list: @chore_list,
+      chore: create(:chore, family: @family),
+      child: @child,
+      status: :pending,
+      assigned_date: Date.current
     )
 
     # Should count completed and reviewed_satisfactory (2 out of 4)
@@ -193,34 +225,41 @@ class CompletionPercentageCalculatorTest < ActiveSupport::TestCase
 
   test "total_chores counts all chore completions" do
     5.times do |i|
-      @daily_chore_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:alice),
-        status: :pending
+      create(:chore_completion,
+        chore_list: @chore_list,
+        chore: create(:chore, family: @family),
+        child: @child,
+        status: :pending,
+        assigned_date: Date.current
       )
     end
 
     assert_equal 5, @calculator.send(:total_chores)
   end
 
-  test "works with different daily chore lists" do
-    other_list = daily_chore_lists(:bob_today)
+  test "works with different chore lists" do
+    other_child = create(:child, family: @family)
+    other_list = create(:chore_list, child: other_child)
     other_calculator = CompletionPercentageCalculator.new(other_list)
 
     # Add chores to other list
     2.times do |i|
-      other_list.chore_completions.create!(
-        chore: chores(:make_bed),
-        child: children(:bob),
+      create(:chore_completion,
+        chore_list: other_list,
+        chore: create(:chore, family: @family),
+        child: other_child,
         status: :completed,
-        completed_at: Time.current
+        completed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
-    other_list.chore_completions.create!(
-      chore: chores(:clean_room),
-      child: children(:bob),
-      status: :pending
+    create(:chore_completion,
+      chore_list: other_list,
+      chore: create(:chore, family: @family),
+      child: other_child,
+      status: :pending,
+      assigned_date: Date.current
     )
 
     # Should not affect original calculator

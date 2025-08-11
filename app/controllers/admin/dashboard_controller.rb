@@ -4,6 +4,10 @@ class Admin::DashboardController < Admin::BaseController
     
     @family = current_adult.family
     @children = @family.children.active
+    
+    # Ensure today's chore lists exist for all active children (idempotent)
+    @family.generate_daily_chore_lists
+    
     @today_chore_lists = ChoreList.joins(:child)
                                   .where(child: @children, start_date: Date.current, interval: :daily)
                                   .includes(:chore_completions, :child)

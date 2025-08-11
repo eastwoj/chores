@@ -68,13 +68,6 @@
                 </div>
               <% else %>
                 <p class="text-gray-500">No chores assigned today</p>
-                <div class="mt-2">
-                  <%= form_with url: generate_daily_lists_admin_chores_path, method: :post, local: true, class: "inline" do %>
-                    <button type="submit" class="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                      Generate Today's Lists
-                    </button>
-                  <% end %>
-                </div>
               <% end %>
             </div>
           </div>

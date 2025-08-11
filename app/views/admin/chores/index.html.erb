@@ -35,16 +35,10 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Actions Bar -->
-    <div class="mb-8 flex justify-between items-center">
+    <div class="mb-8">
       <div class="text-sm text-gray-600">
         <%= @chores.count %> chores total
       </div>
-      
-      <%= form_with url: generate_daily_lists_admin_chores_path, method: :post, local: true, class: "inline" do %>
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-          Generate Today's Chore Lists
-        </button>
-      <% end %>
     </div>
 
     <!-- Chores List -->

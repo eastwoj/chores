@@ -1,27 +1,34 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  title: MyString
-  description: MyText
-  instructions: MyText
-  chore_type: 1
-  difficulty: 1
-  estimated_minutes: 1
-  min_age: 1
-  max_age: 1
-  base_value: 9.99
-  active: false
+make_bed:
+  title: Make Bed
+  description: Make your bed neatly with pillows arranged
+  instructions: Pull covers tight, fluff pillows, arrange neatly
+  chore_type: constant
+  difficulty: easy
+  estimated_minutes: 5
+  min_age: 5
+  active: true
   family: one
 
-two:
-  title: MyString
-  description: MyText
-  instructions: MyText
-  chore_type: 1
-  difficulty: 1
-  estimated_minutes: 1
-  min_age: 1
-  max_age: 1
-  base_value: 9.99
-  active: false
-  family: two
+clean_room:
+  title: Clean Room
+  description: Tidy up bedroom and organize belongings
+  instructions: Put toys away, organize desk, vacuum if needed
+  chore_type: constant
+  difficulty: medium
+  estimated_minutes: 20
+  min_age: 6
+  active: true
+  family: one
+
+organize_garage:
+  title: Organize Garage
+  description: Sort and organize garage items
+  instructions: Put tools away, organize shelves
+  chore_type: rotational
+  difficulty: hard
+  estimated_minutes: 60
+  min_age: 12
+  active: true
+  family: one

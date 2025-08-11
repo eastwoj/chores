@@ -45,7 +45,6 @@ Rails.application.routes.draw do
       collection do
         patch :assign_constant_chore
         delete :remove_constant_assignment
-        post :generate_daily_lists
       end
     end
     resources :extras do

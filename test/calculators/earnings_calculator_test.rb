@@ -13,136 +13,107 @@ class EarningsCalculatorTest < ActiveSupport::TestCase
     assert_equal @family_setting, @calculator.instance_variable_get(:@family_setting)
   end
 
-  test "current_period_total returns sum of chore and extra earnings for current period" do
-    daily_list = create(:daily_chore_list, child: @child)
-    
-    # Create reviewed satisfactory chore completion in current period
-    create(:chore_completion, :reviewed_satisfactory,
+  test "current_period_total returns sum of extra earnings for current period" do
+    # Create approved extra completion in current period
+    create(:extra_completion, :approved,
            child: @child,
-           daily_chore_list: daily_list,
-           earned_amount: 1.50,
-           reviewed_at: 2.days.ago
+           earned_amount: 5.00,
+           approved_at: Date.current.beginning_of_week + 1.day
     )
 
-    # Create approved extra completion in current period
+    # Create old completion outside current period (should not be included)
+    create(:extra_completion, :approved,
+           child: @child,
+           earned_amount: 2.50,
+           approved_at: 32.days.ago
+    )
+
+    assert_equal 5.00, @calculator.current_period_total
+  end
+
+  test "lifetime_total returns sum of all approved extra earnings" do
+    # Create multiple extra completions across time periods
     create(:extra_completion, :approved,
            child: @child,
            earned_amount: 5.00,
            approved_at: 1.day.ago
     )
 
-    # Create old completion outside current period (should not be included)
-    old_list = create(:daily_chore_list, child: @child, date: 32.days.ago)
-    create(:chore_completion, :reviewed_satisfactory,
+    create(:extra_completion, :approved,
            child: @child,
-           daily_chore_list: old_list,
-           earned_amount: 0.75,
-           reviewed_at: 32.days.ago
+           earned_amount: 3.00,
+           approved_at: 1.month.ago
     )
 
-    assert_equal 6.50, @calculator.current_period_total
-  end
-
-  test "lifetime_total returns sum of all historical earnings" do
-    # Create multiple completions across time periods
-    chore_completion1 = chore_completions(:alice_make_bed_today)
-    chore_completion1.update!(
-      status: :reviewed_satisfactory,
-      earned_amount: 1.50
+    # Rejected completion should not count
+    create(:extra_completion, :rejected,
+           child: @child,
+           earned_amount: 2.00
     )
 
-    chore_completion2 = chore_completions(:alice_make_bed_last_month)
-    chore_completion2.update!(
-      status: :reviewed_satisfactory,
-      earned_amount: 0.75
-    )
-
-    extra_completion = extra_completions(:alice_wash_car)
-    extra_completion.update!(
-      status: :approved,
-      earned_amount: 5.00
-    )
-
-    # Unsatisfactory completion should not count
-    bad_completion = chore_completions(:alice_clean_room_bad)
-    bad_completion.update!(
-      status: :reviewed_unsatisfactory,
-      earned_amount: 1.00
-    )
-
-    assert_equal 7.25, @calculator.lifetime_total
+    assert_equal 8.00, @calculator.lifetime_total
   end
 
   test "projected_weekly_earnings returns 0 when insufficient history" do
     # Clear any existing completions
-    @child.chore_completions.destroy_all
+    @child.extra_completions.destroy_all
 
     assert_equal 0.0, @calculator.projected_weekly_earnings
   end
 
   test "projected_weekly_earnings calculates weekly average from 4 weeks of data" do
-    # Create completions over 4 weeks with total of $20
-    4.times do |week|
-      completion = @child.chore_completions.create!(
-        chore: chores(:make_bed),
-        daily_chore_list: daily_chore_lists(:alice_today),
-        status: :reviewed_satisfactory,
-        earned_amount: 5.00,
-        created_at: (week + 1).weeks.ago,
-        reviewed_at: (week + 1).weeks.ago
+    # Clear any existing completions first
+    @child.extra_completions.destroy_all
+    
+    # Create exactly 5 approved completions (minimum for sufficient_history) over 3 weeks
+    # Week 1: 2 completions
+    2.times do |i|
+      create(:extra_completion, :approved,
+             child: @child,
+             earned_amount: 4.00,
+             created_at: 1.week.ago + i.days,
+             approved_at: 1.week.ago + i.days
       )
     end
-
-    assert_equal 5.0, @calculator.projected_weekly_earnings
+    
+    # Week 2: 2 completions  
+    2.times do |i|
+      create(:extra_completion, :approved,
+             child: @child,
+             earned_amount: 4.00,
+             created_at: 2.weeks.ago + i.days,
+             approved_at: 2.weeks.ago + i.days
+      )
+    end
+    
+    # Week 3: 1 completion
+    create(:extra_completion, :approved,
+           child: @child,
+           earned_amount: 4.00,
+           created_at: 3.weeks.ago,
+           approved_at: 3.weeks.ago
+    )
+    
+    # Total: 5 * 4.00 = $20, weekly average = $20 / 4 weeks = $5.00
+    assert_equal 5.00, @calculator.projected_weekly_earnings
   end
 
   test "projected_weekly_earnings returns 0 when no recent completions" do
     # Create old completions outside 4-week window
     2.times do |i|
-      @child.chore_completions.create!(
-        chore: chores(:make_bed),
-        daily_chore_list: daily_chore_lists(:alice_today),
-        status: :reviewed_satisfactory,
-        earned_amount: 2.00,
-        created_at: (5 + i).weeks.ago,
-        reviewed_at: (5 + i).weeks.ago
+      create(:extra_completion, :approved,
+             child: @child,
+             earned_amount: 2.00,
+             created_at: (5 + i).weeks.ago,
+             approved_at: (5 + i).weeks.ago
       )
     end
 
     assert_equal 0.0, @calculator.projected_weekly_earnings
   end
 
-  test "calculate_for_chore applies difficulty multipliers correctly" do
-    easy_chore = chores(:make_bed)
-    easy_chore.update!(difficulty: :easy, base_value: 1.00)
-
-    medium_chore = chores(:clean_room)
-    medium_chore.update!(difficulty: :medium, base_value: 1.00)
-
-    hard_chore = chores(:organize_garage)
-    hard_chore.update!(difficulty: :hard, base_value: 1.00)
-
-    assert_equal 1.00, @calculator.calculate_for_chore(easy_chore)
-    assert_equal 1.50, @calculator.calculate_for_chore(medium_chore)
-    assert_equal 2.00, @calculator.calculate_for_chore(hard_chore)
-  end
-
-  test "calculate_for_chore uses family setting base value when chore has no base value" do
-    chore = chores(:make_bed)
-    chore.update!(base_value: nil, difficulty: :easy)
-    @family_setting.update!(base_chore_value: 0.75)
-
-    assert_equal 0.75, @calculator.calculate_for_chore(chore)
-  end
-
-  test "calculate_for_chore handles unknown difficulty gracefully" do
-    chore = chores(:make_bed)
-    chore.update!(base_value: 1.00)
-    # Simulate invalid difficulty
-    chore.define_singleton_method(:difficulty) { "unknown" }
-
-    assert_equal 1.00, @calculator.calculate_for_chore(chore)
-  end
+  # Note: These tests are now obsolete since chores don't have monetary value
+  # Only extras have earnings in our business model
 
   test "current_period_start calculates weekly periods correctly" do
     @family_setting.update!(payout_interval_days: 7)
@@ -186,14 +157,13 @@ class EarningsCalculatorTest < ActiveSupport::TestCase
   end
 
   test "sufficient_history? returns true when child has enough completions" do
-    @child.chore_completions.destroy_all
+    @child.extra_completions.destroy_all
     
     # Create 5 completions in last 4 weeks
     5.times do |i|
-      @child.chore_completions.create!(
-        chore: chores(:make_bed),
-        daily_chore_list: daily_chore_lists(:alice_today),
-        created_at: i.days.ago
+      create(:extra_completion,
+             child: @child,
+             created_at: i.days.ago
       )
     end
 
@@ -201,14 +171,13 @@ class EarningsCalculatorTest < ActiveSupport::TestCase
   end
 
   test "sufficient_history? returns false when child has insufficient completions" do
-    @child.chore_completions.destroy_all
+    @child.extra_completions.destroy_all
     
     # Create only 4 completions
     4.times do |i|
-      @child.chore_completions.create!(
-        chore: chores(:make_bed),
-        daily_chore_list: daily_chore_lists(:alice_today),
-        created_at: i.days.ago
+      create(:extra_completion,
+             child: @child,
+             created_at: i.days.ago
       )
     end
 
@@ -216,14 +185,13 @@ class EarningsCalculatorTest < ActiveSupport::TestCase
   end
 
   test "sufficient_history? returns false when completions are too old" do
-    @child.chore_completions.destroy_all
+    @child.extra_completions.destroy_all
     
     # Create 6 completions but all older than 4 weeks
     6.times do |i|
-      @child.chore_completions.create!(
-        chore: chores(:make_bed),
-        daily_chore_list: daily_chore_lists(:alice_today),
-        created_at: (5.weeks + i.days).ago
+      create(:extra_completion,
+             child: @child,
+             created_at: (5.weeks + i.days).ago
       )
     end
 

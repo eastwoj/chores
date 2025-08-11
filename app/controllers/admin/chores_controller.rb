@@ -1,6 +1,6 @@
 class Admin::ChoresController < Admin::BaseController
   before_action :set_chore, only: [:show, :edit, :update, :destroy, :toggle_active]
-  before_action :set_family, only: [:index, :new, :create, :assign_constant_chore, :remove_constant_assignment, :generate_daily_lists]
+  before_action :set_family, only: [:index, :new, :create, :assign_constant_chore, :remove_constant_assignment]
 
   def index
     authorize :admin, :index?
@@ -88,13 +88,6 @@ class Admin::ChoresController < Admin::BaseController
     redirect_to admin_chores_path
   end
 
-  def generate_daily_lists
-    authorize :admin, :manage_chores?
-    
-    @family.generate_daily_chore_lists
-    flash[:notice] = "Daily chore lists generated successfully for all children."
-    redirect_to admin_root_path
-  end
 
   private
 
@@ -108,6 +101,6 @@ class Admin::ChoresController < Admin::BaseController
 
   def chore_params
     params.require(:chore).permit(:title, :description, :instructions, :chore_type, :difficulty, 
-                                  :estimated_minutes, :min_age, :max_age, :base_value, :active)
+                                  :estimated_minutes, :min_age, :max_age, :active)
   end
 end

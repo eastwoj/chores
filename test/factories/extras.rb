@@ -4,6 +4,8 @@ FactoryBot.define do
     title { "Wash Car" }
     description { "Wash the family car inside and out" }
     reward_amount { 5.00 }
+    available_from { Date.current }
+    available_until { 1.week.from_now.to_date }
     active { true }
 
     trait :high_value do

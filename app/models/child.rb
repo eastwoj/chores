@@ -43,21 +43,13 @@ class Child < ApplicationRecord
     current_period = family.current_pay_period
     return 0 unless current_period
 
-    chore_earnings = chore_completions
-      .reviewed_satisfactory
-      .where(reviewed_at: current_period.start_date.beginning_of_day..current_period.end_date.end_of_day)
-      .sum(:earned_amount)
-
-    extra_earnings = extra_completions
+    extra_completions
       .approved
       .where(approved_at: current_period.start_date.beginning_of_day..current_period.end_date.end_of_day)
       .sum(:earned_amount)
-
-    chore_earnings + extra_earnings
   end
 
   def all_time_earnings
-    chore_completions.reviewed_satisfactory.sum(:earned_amount) +
     extra_completions.approved.sum(:earned_amount)
   end
 

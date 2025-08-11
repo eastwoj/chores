@@ -56,7 +56,6 @@ constant_chores_data = [
     difficulty: "easy",
     estimated_minutes: 5,
     min_age: 4,
-    base_value: 0.25,
     active: true
   },
   {
@@ -66,7 +65,6 @@ constant_chores_data = [
     difficulty: "easy",
     estimated_minutes: 3,
     min_age: 3,
-    base_value: 0.0,
     active: true
   },
   {
@@ -76,7 +74,6 @@ constant_chores_data = [
     difficulty: "easy", 
     estimated_minutes: 1,
     min_age: 4,
-    base_value: 0.25,
     active: true
   },
   {
@@ -86,7 +83,6 @@ constant_chores_data = [
     difficulty: "easy",
     estimated_minutes: 5,
     min_age: 6,
-    base_value: 1.00,
     active: true
   }
 ]
@@ -110,7 +106,6 @@ rotational_chores_data = [
     difficulty: "easy",
     estimated_minutes: 15,
     min_age: 8,
-    base_value: 1.50,
     active: true
   },
   {
@@ -120,7 +115,6 @@ rotational_chores_data = [
     difficulty: "medium",
     estimated_minutes: 10,
     min_age: 9,
-    base_value: 1.00,
     active: true
   },
   {
@@ -130,7 +124,6 @@ rotational_chores_data = [
     difficulty: "easy",
     estimated_minutes: 8,
     min_age: 7,
-    base_value: 1.00,
     active: true
   }
 ]

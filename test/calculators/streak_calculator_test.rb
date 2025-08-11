@@ -2,7 +2,8 @@ require "test_helper"
 
 class StreakCalculatorTest < ActiveSupport::TestCase
   setup do
-    @child = children(:alice)
+    @family = create(:family)
+    @child = create(:child, family: @family)
     @calculator = StreakCalculator.new(@child)
   end
 
@@ -11,7 +12,7 @@ class StreakCalculatorTest < ActiveSupport::TestCase
   end
 
   test "current_completion_streak returns 0 when no chore lists exist" do
-    @child.daily_chore_lists.destroy_all
+    @child.chore_lists.destroy_all
     
     assert_equal 0, @calculator.current_completion_streak
   end
@@ -19,34 +20,36 @@ class StreakCalculatorTest < ActiveSupport::TestCase
   test "current_completion_streak calculates consecutive 100% completion days" do
     # Create 5 consecutive days of 100% completion
     5.times do |days_ago|
-      list = @child.daily_chore_lists.create!(
-        date: days_ago.days.ago.to_date
-      )
+      list = create(:chore_list, child: @child, interval: :daily, start_date: days_ago.days.ago.to_date)
 
       3.times do
-        list.chore_completions.create!(
-          chore: chores(:make_bed),
+        create(:chore_completion,
+          chore_list: list,
+          chore: create(:chore, family: @family),
           child: @child,
           status: :completed,
-          completed_at: days_ago.days.ago
+          completed_at: days_ago.days.ago,
+          assigned_date: days_ago.days.ago.to_date
         )
       end
     end
 
     # Add a day with incomplete chores (should stop streak counting here)
-    broken_list = @child.daily_chore_lists.create!(
-      date: 6.days.ago.to_date
-    )
-    broken_list.chore_completions.create!(
-      chore: chores(:make_bed),
+    broken_list = create(:chore_list, child: @child, interval: :daily, start_date: 6.days.ago.to_date)
+    create(:chore_completion,
+      chore_list: broken_list,
+      chore: create(:chore, family: @family),
       child: @child,
       status: :completed,
-      completed_at: 6.days.ago
+      completed_at: 6.days.ago,
+      assigned_date: 6.days.ago.to_date
     )
-    broken_list.chore_completions.create!(
-      chore: chores(:clean_room),
+    create(:chore_completion,
+      chore_list: broken_list,
+      chore: create(:chore, family: @family),
       child: @child,
-      status: :pending
+      status: :pending,
+      assigned_date: 6.days.ago.to_date
     )
 
     assert_equal 5, @calculator.current_completion_streak
@@ -54,32 +57,34 @@ class StreakCalculatorTest < ActiveSupport::TestCase
 
   test "current_completion_streak stops at first incomplete day" do
     # Create today with 100% completion
-    today_list = @child.daily_chore_lists.create!(
-      date: Date.current
-    )
+    today_list = create(:chore_list, child: @child, interval: :daily, start_date: Date.current)
     2.times do
-      today_list.chore_completions.create!(
-        chore: chores(:make_bed),
+      create(:chore_completion,
+        chore_list: today_list,
+        chore: create(:chore, family: @family),
         child: @child,
         status: :completed,
-        completed_at: Time.current
+        completed_at: Time.current,
+        assigned_date: Date.current
       )
     end
 
     # Create yesterday with incomplete chores
-    yesterday_list = @child.daily_chore_lists.create!(
-      date: 1.day.ago.to_date
-    )
-    yesterday_list.chore_completions.create!(
-      chore: chores(:make_bed),
+    yesterday_list = create(:chore_list, child: @child, interval: :daily, start_date: 1.day.ago.to_date)
+    create(:chore_completion,
+      chore_list: yesterday_list,
+      chore: create(:chore, family: @family),
       child: @child,
       status: :completed,
-      completed_at: 1.day.ago
+      completed_at: 1.day.ago,
+      assigned_date: 1.day.ago.to_date
     )
-    yesterday_list.chore_completions.create!(
-      chore: chores(:clean_room),
+    create(:chore_completion,
+      chore_list: yesterday_list,
+      chore: create(:chore, family: @family),
       child: @child,
-      status: :pending
+      status: :pending,
+      assigned_date: 1.day.ago.to_date
     )
 
     # Should only count today (streak broken by yesterday)
@@ -88,35 +93,37 @@ class StreakCalculatorTest < ActiveSupport::TestCase
 
   test "current_completion_streak returns 0 if today is incomplete" do
     # Create today with incomplete chores
-    today_list = @child.daily_chore_lists.create!(
-      date: Date.current
-    )
-    today_list.chore_completions.create!(
-      chore: chores(:make_bed),
+    today_list = create(:chore_list, child: @child, interval: :daily, start_date: Date.current)
+    create(:chore_completion,
+      chore_list: today_list,
+      chore: create(:chore, family: @family),
       child: @child,
       status: :completed,
-      completed_at: Time.current
+      completed_at: Time.current,
+      assigned_date: Date.current
     )
-    today_list.chore_completions.create!(
-      chore: chores(:clean_room),
+    create(:chore_completion,
+      chore_list: today_list,
+      chore: create(:chore, family: @family),
       child: @child,
-      status: :pending
+      status: :pending,
+      assigned_date: Date.current
     )
 
     # Create previous days with 100% completion
     3.times do |days_ago|
       next if days_ago == 0 # Skip today
       
-      list = @child.daily_chore_lists.create!(
-        date: (days_ago + 1).days.ago.to_date
-      )
+      list = create(:chore_list, child: @child, interval: :daily, start_date: (days_ago + 1).days.ago.to_date)
 
       2.times do
-        list.chore_completions.create!(
-          chore: chores(:make_bed),
+        create(:chore_completion,
+          chore_list: list,
+          chore: create(:chore, family: @family),
           child: @child,
           status: :completed,
-          completed_at: (days_ago + 1).days.ago
+          completed_at: (days_ago + 1).days.ago,
+          assigned_date: (days_ago + 1).days.ago.to_date
         )
       end
     end
@@ -129,76 +136,78 @@ class StreakCalculatorTest < ActiveSupport::TestCase
     
     # Most recent 2 perfect days
     2.times do |days_ago|
-      list = @child.daily_chore_lists.create!(
-        date: days_ago.days.ago.to_date
-      )
+      list = create(:chore_list, child: @child, interval: :daily, start_date: days_ago.days.ago.to_date)
 
       3.times do
-        list.chore_completions.create!(
-          chore: chores(:make_bed),
+        create(:chore_completion,
+          chore_list: list,
+          chore: create(:chore, family: @family),
           child: @child,
           status: :completed,
-          completed_at: days_ago.days.ago
+          completed_at: days_ago.days.ago,
+          assigned_date: days_ago.days.ago.to_date
         )
       end
     end
 
     # 1 bad day
-    bad_list1 = @child.daily_chore_lists.create!(
-      date: 3.days.ago.to_date
-    )
-    bad_list1.chore_completions.create!(
-      chore: chores(:make_bed),
+    bad_list1 = create(:chore_list, child: @child, interval: :daily, start_date: 3.days.ago.to_date)
+    create(:chore_completion,
+      chore_list: bad_list1,
+      chore: create(:chore, family: @family),
       child: @child,
       status: :completed,
-      completed_at: 3.days.ago
+      completed_at: 3.days.ago,
+      assigned_date: 3.days.ago.to_date
     )
-    bad_list1.chore_completions.create!(
-      chore: chores(:clean_room),
+    create(:chore_completion,
+      chore_list: bad_list1,
+      chore: create(:chore, family: @family),
       child: @child,
-      status: :pending
+      status: :pending,
+      assigned_date: 3.days.ago.to_date
     )
 
     # 5 perfect days (this should be the longest streak)
     5.times do |i|
       days_ago = i + 4
-      list = @child.daily_chore_lists.create!(
-        date: days_ago.days.ago.to_date
-      )
+      list = create(:chore_list, child: @child, interval: :daily, start_date: days_ago.days.ago.to_date)
 
       3.times do
-        list.chore_completions.create!(
-          chore: chores(:make_bed),
+        create(:chore_completion,
+          chore_list: list,
+          chore: create(:chore, family: @family),
           child: @child,
           status: :completed,
-          completed_at: days_ago.days.ago
+          completed_at: days_ago.days.ago,
+          assigned_date: days_ago.days.ago.to_date
         )
       end
     end
 
     # 1 bad day
-    bad_list2 = @child.daily_chore_lists.create!(
-      date: 10.days.ago.to_date
-    )
-    bad_list2.chore_completions.create!(
-      chore: chores(:make_bed),
+    bad_list2 = create(:chore_list, child: @child, interval: :daily, start_date: 10.days.ago.to_date)
+    create(:chore_completion,
+      chore_list: bad_list2,
+      chore: create(:chore, family: @family),
       child: @child,
-      status: :pending
+      status: :pending,
+      assigned_date: 10.days.ago.to_date
     )
 
     # 3 perfect days
     3.times do |i|
       days_ago = i + 11
-      list = @child.daily_chore_lists.create!(
-        date: days_ago.days.ago.to_date
-      )
+      list = create(:chore_list, child: @child, interval: :daily, start_date: days_ago.days.ago.to_date)
 
       2.times do
-        list.chore_completions.create!(
-          chore: chores(:make_bed),
+        create(:chore_completion,
+          chore_list: list,
+          chore: create(:chore, family: @family),
           child: @child,
           status: :completed,
-          completed_at: days_ago.days.ago
+          completed_at: days_ago.days.ago,
+          assigned_date: days_ago.days.ago.to_date
         )
       end
     end

@@ -4,8 +4,9 @@ class ProgressCalculator
   end
 
   def weekly_completion_rate
-    lists = @child.daily_chore_lists
-                  .where("date >= ?", 7.days.ago.to_date)
+    lists = @child.chore_lists
+                  .where("start_date >= ?", 7.days.ago.to_date)
+                  .where(interval: :daily)
                   .includes(:chore_completions)
     
     return 0.0 if lists.empty?
@@ -15,8 +16,9 @@ class ProgressCalculator
   end
 
   def monthly_completion_rate
-    lists = @child.daily_chore_lists
-                  .where("date >= ?", 30.days.ago.to_date)
+    lists = @child.chore_lists
+                  .where("start_date >= ?", 30.days.ago.to_date)
+                  .where(interval: :daily)
                   .includes(:chore_completions)
     
     return 0.0 if lists.empty?
@@ -27,8 +29,9 @@ class ProgressCalculator
 
   def completion_trend
     recent_rate = weekly_completion_rate
-    historical_rate = @child.daily_chore_lists
-                           .where("date >= ? AND date < ?", 14.days.ago.to_date, 7.days.ago.to_date)
+    historical_rate = @child.chore_lists
+                           .where("start_date >= ? AND start_date < ?", 14.days.ago.to_date, 7.days.ago.to_date)
+                           .where(interval: :daily)
                            .includes(:chore_completions)
                            .map { |list| completion_percentage_for(list) }
                            .then { |percentages| percentages.empty? ? 0 : percentages.sum / percentages.count.to_f }
@@ -49,7 +52,7 @@ class ProgressCalculator
     current_date = Date.current
 
     loop do
-      list = @child.daily_chore_lists.find_by(date: current_date)
+      list = @child.chore_lists.find_by(start_date: current_date, interval: :daily)
       break if list.nil?
       
       percentage = completion_percentage_for(list)
@@ -63,15 +66,17 @@ class ProgressCalculator
   end
 
   def best_day_percentage
-    @child.daily_chore_lists
+    @child.chore_lists
+          .where(interval: :daily)
           .includes(:chore_completions)
           .map { |list| completion_percentage_for(list) }
           .max || 0
   end
 
   def average_chores_per_day(days = 7)
-    lists = @child.daily_chore_lists
-                  .where("date >= ?", days.days.ago.to_date)
+    lists = @child.chore_lists
+                  .where("start_date >= ?", days.days.ago.to_date)
+                  .where(interval: :daily)
                   .includes(:chore_completions)
     
     return 0.0 if lists.empty?

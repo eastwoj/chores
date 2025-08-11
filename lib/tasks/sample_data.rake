@@ -72,7 +72,7 @@ namespace :sample do
     end
     puts "✓ Josiah found/created (age #{josiah.age})"
 
-    raphaela = family.children.find_or_create_by!(first_name: "Raphaela") do |child|
+    raphaela = family.children.find_or_create_by!(first_name: "Rafa") do |child|
       child.birth_date = raphaela_birth_date
       child.avatar_color = "#EC4899" # Pink
       child.active = true
@@ -101,10 +101,11 @@ namespace :sample do
 
     # Create constant chores
     constant_chores_data = [
-      { title: "Make Bed", description: "Make your bed every morning", difficulty: :easy, base_value: 0.50, estimated_minutes: 5, min_age: 5 },
-      { title: "Brush Teeth", description: "Brush teeth after breakfast and before bed", difficulty: :easy, base_value: 0.25, estimated_minutes: 3, min_age: 4 },
-      { title: "Put Away Clothes", description: "Put clean clothes in dresser", difficulty: :easy, base_value: 0.75, estimated_minutes: 10, min_age: 6 },
-      { title: "Pack School Backpack", description: "Get backpack ready for school", difficulty: :medium, base_value: 1.00, estimated_minutes: 10, min_age: 7 }
+      { title: "Make bed", description: "Make your bed every morning", difficulty: :easy, estimated_minutes: 5, min_age: 5 },
+      { title: "Get yourself ready", description: "Get dressed and ready for the day", difficulty: :easy, estimated_minutes: 10, min_age: 6 },
+      { title: "Match socks", description: "Match and pair clean socks", difficulty: :easy, estimated_minutes: 5, min_age: 5 },
+      { title: "Clean up room", description: "Tidy up bedroom and put things away", difficulty: :medium, estimated_minutes: 15, min_age: 6 },
+      { title: "Bring laundry downstairs if full", description: "Check laundry basket and bring down if full", difficulty: :medium, estimated_minutes: 5, min_age: 8 }
     ]
 
     constant_chores_data.each do |chore_data|
@@ -112,7 +113,6 @@ namespace :sample do
         c.description = chore_data[:description]
         c.chore_type = :constant
         c.difficulty = chore_data[:difficulty]
-        c.base_value = chore_data[:base_value]
         c.estimated_minutes = chore_data[:estimated_minutes]
         c.min_age = chore_data[:min_age]
         c.active = true
@@ -132,12 +132,12 @@ namespace :sample do
 
     # Create rotational chores
     rotational_chores_data = [
-      { title: "Take Out Trash", description: "Take kitchen trash to outside bin", difficulty: :medium, base_value: 2.00, estimated_minutes: 5, min_age: 8 },
-      { title: "Load Dishwasher", description: "Load dirty dishes into dishwasher", difficulty: :medium, base_value: 1.50, estimated_minutes: 10, min_age: 9 },
-      { title: "Sweep Kitchen Floor", description: "Sweep kitchen and dining room floors", difficulty: :medium, base_value: 2.00, estimated_minutes: 15, min_age: 8 },
-      { title: "Wipe Down Bathroom Counter", description: "Clean bathroom counter and sink", difficulty: :easy, base_value: 1.00, estimated_minutes: 8, min_age: 7 },
-      { title: "Vacuum Living Room", description: "Vacuum the main living room carpet", difficulty: :hard, base_value: 3.00, estimated_minutes: 20, min_age: 10 },
-      { title: "Water Plants", description: "Water all the house plants", difficulty: :easy, base_value: 1.00, estimated_minutes: 10, min_age: 6 }
+      { title: "Wash dishes once", description: "Wash dishes in the sink", difficulty: :medium, estimated_minutes: 10, min_age: 8 },
+      { title: "Clean up TV room", description: "Tidy up and organize the TV room", difficulty: :medium, estimated_minutes: 15, min_age: 7 },
+      { title: "Set the table", description: "Set up table for meals", difficulty: :easy, estimated_minutes: 5, min_age: 6 },
+      { title: "Clear the table", description: "Clear dishes and items from table after meals", difficulty: :easy, estimated_minutes: 5, min_age: 6 },
+      { title: "Refill pimi food and water", description: "Refill pet food and water bowls", difficulty: :easy, estimated_minutes: 5, min_age: 5 },
+      { title: "Dust furniture", description: "Dust furniture in common areas", difficulty: :medium, estimated_minutes: 15, min_age: 8 }
     ]
 
     rotational_chores_data.each do |chore_data|
@@ -145,7 +145,6 @@ namespace :sample do
         c.description = chore_data[:description]
         c.chore_type = :rotational
         c.difficulty = chore_data[:difficulty]
-        c.base_value = chore_data[:base_value]
         c.estimated_minutes = chore_data[:estimated_minutes]
         c.min_age = chore_data[:min_age]
         c.active = true
@@ -153,9 +152,28 @@ namespace :sample do
       puts "✓ Rotational chore: #{chore.title}"
     end
 
-    puts "\nSample chores created!"
+    # Create extras
+    extras_data = [
+      { title: "Do the laundry", description: "Wash, dry, and fold a load of laundry", difficulty: :hard, estimated_minutes: 60, min_age: 10 },
+      { title: "Disinfect remote controls, game controllers, and keyboards", description: "Clean and disinfect frequently used electronics", difficulty: :medium, estimated_minutes: 15, min_age: 8 },
+      { title: "Sort and pair shoes in entryway or closets", description: "Organize and pair all shoes in designated areas", difficulty: :easy, estimated_minutes: 20, min_age: 7 }
+    ]
+
+    extras_data.each do |extra_data|
+      extra = family.extras.find_or_create_by!(title: extra_data[:title]) do |e|
+        e.description = extra_data[:description]
+        e.difficulty = extra_data[:difficulty]
+        e.estimated_minutes = extra_data[:estimated_minutes]
+        e.min_age = extra_data[:min_age]
+        e.active = true
+      end
+      puts "✓ Extra: #{extra.title}"
+    end
+
+    puts "\nSample chores and extras created!"
     puts "Constant chores: #{family.chores.constant.count}"
     puts "Rotational chores: #{family.chores.rotational.count}"
+    puts "Extras: #{family.extras.count}"
     puts "\nYou can now test the chore assignment system!"
   end
 

@@ -8,7 +8,6 @@ class Chore < ApplicationRecord
   validates :title, presence: true, length: { maximum: 100 }
   validates :chore_type, presence: true
   validates :difficulty, presence: true
-  validates :base_value, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :estimated_minutes, numericality: { greater_than: 0 }, allow_nil: true
   validates :min_age, numericality: { greater_than: 0 }, allow_nil: true
   validates :max_age, numericality: { greater_than: 0 }, allow_nil: true
