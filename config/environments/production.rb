@@ -81,7 +81,7 @@ Rails.application.configure do
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts = [
-    ENV.fetch("HEROKU_APP_NAME", "localhost") + ".herokuapp.com"
+    "family-chore-tracker-76f163572aa1.herokuapp.com"
   ]
   
   # Skip DNS rebinding protection for the default health check endpoint.
