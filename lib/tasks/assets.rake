@@ -1,7 +1,7 @@
 namespace :assets do
   desc "Build CSS assets"
   task :build_css do
-    system("npm run build:css") || raise("CSS build failed")
+    system("yarn build:css") || raise("CSS build failed")
   end
 end
 
