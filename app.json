@@ -1,0 +1,46 @@
+{
+  "name": "Family Chore Tracker",
+  "description": "A Rails application for tracking family chores and allowances",
+  "website": "https://github.com/your-username/chores",
+  "keywords": [
+    "rails",
+    "postgresql",
+    "family",
+    "chores"
+  ],
+  "stack": "heroku-24",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/ruby"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    }
+  ],
+  "env": {
+    "RAILS_ENV": {
+      "value": "production"
+    },
+    "RAILS_MASTER_KEY": {
+      "description": "Rails master key for credentials",
+      "required": true
+    },
+    "RAILS_SERVE_STATIC_FILES": {
+      "value": "true"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "scripts": {
+    "postdeploy": "bundle exec rails db:prepare"
+  }
+}
