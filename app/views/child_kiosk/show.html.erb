@@ -169,7 +169,11 @@
                   <% end %>
                 <% else %>
                   <p class="text-gray-600 text-sm">
-                    Daily responsibility
+                    <% if completion.chore.chore_type == "constant" %>
+                      Daily responsibility
+                    <% else %>
+                      Your turn today
+                    <% end %>
                   </p>
                   <% if completion.review_notes.present? %>
                     <p class="text-blue-700 text-sm mt-1 italic">

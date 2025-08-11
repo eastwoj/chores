@@ -49,6 +49,15 @@ class Chore < ApplicationRecord
     DurationFormatter.new(estimated_minutes).format
   end
 
+  def difficulty_weight
+    case difficulty
+    when "easy" then 1
+    when "medium" then 2  
+    when "hard" then 3
+    else 1
+    end
+  end
+
   private
 
   class DurationFormatter
