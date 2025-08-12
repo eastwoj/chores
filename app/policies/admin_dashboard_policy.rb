@@ -7,6 +7,10 @@ class AdminDashboardPolicy < ApplicationPolicy
     index?
   end
 
+  def generate_chores?
+    user_is_adult_with_admin_access?
+  end
+
   private
 
   def user_is_adult_with_admin_access?

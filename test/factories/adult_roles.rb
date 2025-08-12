@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :adult_role do
-    adult { nil }
-    role { nil }
+    association :adult
+    association :role
   end
 end

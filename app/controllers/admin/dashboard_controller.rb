@@ -42,4 +42,19 @@ class Admin::DashboardController < Admin::BaseController
                                                .where(created_at: Date.current.beginning_of_day..Date.current.end_of_day)
                                                .where(status: [:completed])
   end
+
+  def generate_chores
+    authorize :admin_dashboard, :generate_chores?
+    
+    @family = current_adult.family
+    
+    # Generate daily chore lists for all active children
+    # This is idempotent - won't create duplicates if already generated for today
+    @family.generate_daily_chore_lists
+    
+    redirect_to admin_root_path, notice: "Today's chores have been generated successfully!"
+  rescue StandardError => e
+    Rails.logger.error "Error generating chores: #{e.message}"
+    redirect_to admin_root_path, alert: "Failed to generate chores. Please try again."
+  end
 end

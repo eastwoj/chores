@@ -26,7 +26,11 @@ Rails.application.routes.draw do
   # Admin routes for parents
   namespace :admin do
     root "dashboard#index"
-    resources :dashboard, only: [:index]
+    resources :dashboard, only: [:index] do
+      collection do
+        post :generate_chores
+      end
+    end
     resource :payout, only: [:show, :create]
     resource :settings, only: [:show, :update]
     resources :reviews, only: [:index] do
