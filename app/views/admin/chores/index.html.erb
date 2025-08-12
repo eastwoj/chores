@@ -113,7 +113,7 @@
                                 class: "text-blue-600 hover:text-blue-800 text-sm" %>
                     <%= link_to chore.active? ? "Deactivate" : "Activate", 
                                 toggle_active_admin_chore_path(chore), 
-                                method: :patch,
+                                data: { "turbo-method": "patch" },
                                 class: "text-gray-600 hover:text-gray-800 text-sm" %>
                   </div>
                 </div>
@@ -165,7 +165,7 @@
                                 class: "text-blue-600 hover:text-blue-800 text-sm" %>
                     <%= link_to chore.active? ? "Deactivate" : "Activate", 
                                 toggle_active_admin_chore_path(chore), 
-                                method: :patch,
+                                data: { "turbo-method": "patch" },
                                 class: "text-gray-600 hover:text-gray-800 text-sm" %>
                   </div>
                 </div>

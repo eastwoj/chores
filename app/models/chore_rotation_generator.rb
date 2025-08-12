@@ -15,6 +15,9 @@ class ChoreRotationGenerator
       assign_chore_to_best_candidate(chore, assignments, difficulty_tracker)
     end
 
+    # Commit all assignments to database at once to avoid interference
+    assignments.commit_to_database
+    
     assignments.to_hash
   end
 
@@ -43,7 +46,8 @@ class ChoreRotationGenerator
     selected_child = select_optimal_child(chore, eligible_children, difficulty_tracker)
     assignments.add_chore_to_child(selected_child, chore)
     difficulty_tracker.add_weight_for_child(selected_child, chore.difficulty_weight)
-    record_assignment_in_database(chore, selected_child)
+    # Store assignment for later database recording
+    assignments.record_assignment_for_database(chore, selected_child, @date)
   end
 
   def find_age_appropriate_children(chore)
@@ -74,23 +78,34 @@ class ChoreRotationGenerator
     rotation_calculator.next_child_for_assignment(@date)
   end
 
-  def record_assignment_in_database(chore, child)
-    ChoreRotation.create!(
-      chore: chore,
-      child: child,
-      assigned_date: @date
-    )
-  end
 
   # Value objects for better encapsulation
   class ChoreAssignments
     def initialize
       @assignments = {}
+      @database_records = []
     end
 
     def add_chore_to_child(child, chore)
       @assignments[child] ||= []
       @assignments[child] << chore
+    end
+
+    def record_assignment_for_database(chore, child, date)
+      @database_records << { chore: chore, child: child, assigned_date: date }
+    end
+
+    def commit_to_database
+      @database_records.each do |record|
+        # Only create if it doesn't already exist to avoid duplicates
+        unless ChoreRotation.exists?(
+          chore: record[:chore], 
+          child: record[:child], 
+          assigned_date: record[:assigned_date]
+        )
+          ChoreRotation.create!(record)
+        end
+      end
     end
 
     def to_hash

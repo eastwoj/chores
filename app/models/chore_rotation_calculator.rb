@@ -13,8 +13,9 @@ class ChoreRotationCalculator
   private
 
   def child_with_least_recent_assignment(date)
-    # Look back 30 days to find the most fair assignment
-    lookback_period = 30.days.ago..date
+    # Look back 30 days to find the most fair assignment, but exclude the current date
+    # to avoid interference from assignments being made today
+    lookback_period = 30.days.ago..(date - 1.day)
 
     assignment_counts = calculate_assignment_counts(lookback_period)
     
@@ -44,9 +45,10 @@ class ChoreRotationCalculator
   def select_child_by_recency(children, date)
     return children.first if children.one?
 
-    # Find who was assigned this chore longest ago
+    # Find who was assigned this chore longest ago (excluding today)
     most_recent_assignments = @chore.chore_rotations
                                    .where(child: children)
+                                   .where("assigned_date < ?", Date.current)
                                    .group(:child)
                                    .maximum(:assigned_date)
 
