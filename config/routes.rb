@@ -31,6 +31,7 @@ Rails.application.routes.draw do
         post :generate_chores
       end
     end
+    resources :history, only: [:index]
     resource :payout, only: [:show, :create]
     resource :settings, only: [:show, :update]
     resources :reviews, only: [:index] do
