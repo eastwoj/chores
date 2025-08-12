@@ -26,6 +26,55 @@
 
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Quick Actions -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <%= button_to generate_chores_admin_dashboard_index_path, method: :post, class: "block" do %>
+          <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+            ✨ Generate Today's Chores
+          </button>
+        <% end %>
+        <%= link_to admin_reviews_path, class: "block" do %>
+          <button class="w-full bg-orange-500 text-white p-4 rounded-lg font-semibold hover:bg-orange-600 transition-colors relative">
+            Review Chores & Extras
+            <% pending_count = (@pending_chore_completions&.count || 0) + (@pending_extra_completions&.count || 0) %>
+            <% if pending_count > 0 %>
+              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                <%= pending_count %>
+              </span>
+            <% end %>
+          </button>
+        <% end %>
+        <%= link_to admin_chores_path, class: "block" do %>
+          <button class="w-full bg-blue-500 text-white p-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+            Manage Chores
+          </button>
+        <% end %>
+        <%= link_to admin_history_index_path, class: "block" do %>
+          <button class="w-full bg-indigo-500 text-white p-4 rounded-lg font-semibold hover:bg-indigo-600 transition-colors">
+            📊 Chore History
+          </button>
+        <% end %>
+        <%= link_to admin_extras_path, class: "block" do %>
+          <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+            Manage Extras
+          </button>
+        <% end %>
+        <%= link_to admin_settings_path, class: "block" do %>
+          <button class="w-full bg-purple-500 text-white p-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
+            ⚙️ Settings
+          </button>
+        <% end %>
+        <%= link_to child_kiosk_index_path, class: "block" do %>
+          <button class="w-full bg-gray-700 text-white p-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+            Open Child Kiosk
+          </button>
+        <% end %>
+      </div>
+    </div>
+
     <!-- Children Overview -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Children Overview</h2>
@@ -175,55 +224,6 @@
         </div>
       </div>
     <% end %>
-
-    <!-- Quick Actions -->
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <%= button_to generate_chores_admin_dashboard_index_path, method: :post, class: "block" do %>
-          <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-            ✨ Generate Today's Chores
-          </button>
-        <% end %>
-        <%= link_to admin_reviews_path, class: "block" do %>
-          <button class="w-full bg-orange-500 text-white p-4 rounded-lg font-semibold hover:bg-orange-600 transition-colors relative">
-            Review Chores & Extras
-            <% pending_count = (@pending_chore_completions&.count || 0) + (@pending_extra_completions&.count || 0) %>
-            <% if pending_count > 0 %>
-              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                <%= pending_count %>
-              </span>
-            <% end %>
-          </button>
-        <% end %>
-        <%= link_to admin_chores_path, class: "block" do %>
-          <button class="w-full bg-blue-500 text-white p-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
-            Manage Chores
-          </button>
-        <% end %>
-        <%= link_to admin_history_index_path, class: "block" do %>
-          <button class="w-full bg-indigo-500 text-white p-4 rounded-lg font-semibold hover:bg-indigo-600 transition-colors">
-            📊 Chore History
-          </button>
-        <% end %>
-        <%= link_to admin_extras_path, class: "block" do %>
-          <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-            Manage Extras
-          </button>
-        <% end %>
-        <%= link_to admin_settings_path, class: "block" do %>
-          <button class="w-full bg-purple-500 text-white p-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
-            ⚙️ Settings
-          </button>
-        <% end %>
-        <%= link_to child_kiosk_index_path, class: "block" do %>
-          <button class="w-full bg-gray-700 text-white p-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-            Open Child Kiosk
-          </button>
-        <% end %>
-      </div>
-    </div>
 
     <!-- Recent Activity (placeholder) -->
     <div>
