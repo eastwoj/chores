@@ -88,6 +88,18 @@
               Automatically approve chores after this many hours (0 = manual only)
             </p>
           </div>
+          
+          <div>
+            <div class="flex items-center">
+              <%= form.check_box :require_chores_for_extras, 
+                                 class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+              <%= form.label :require_chores_for_extras, "Require all chores completed before showing extras", 
+                             class: "ml-2 block text-sm font-medium text-gray-700" %>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">
+              When enabled, children must complete all their chores before extra tasks become visible
+            </p>
+          </div>
         </div>
       </div>
 
@@ -108,6 +120,16 @@
                 After <%= @family_setting.auto_approve_after_hours %> hours
               <% else %>
                 Manual only
+              <% end %>
+            </span>
+          </div>
+          <div>
+            <span class="font-medium text-blue-800">Extras Visibility:</span>
+            <span class="text-blue-700">
+              <% if @family_setting.require_chores_for_extras %>
+                Require chores completed first
+              <% else %>
+                Always visible
               <% end %>
             </span>
           </div>

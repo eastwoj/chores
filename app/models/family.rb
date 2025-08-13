@@ -40,7 +40,8 @@ class Family < ApplicationRecord
       base_chore_value: 0.50,
       auto_approve_after_hours: 48,
       payout_frequency: "weekly",
-      payout_day: 0
+      payout_day: 0,
+      require_chores_for_extras: false
     )
   end
 end

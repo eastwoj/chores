@@ -7,7 +7,7 @@ class ChildKioskController < ApplicationController
     @child = Child.find(params[:id])
     @viewing_date = params[:date] ? Date.parse(params[:date]) : Date.current
     @today_chore_list = find_daily_chore_list(@viewing_date)
-    @available_extras = @viewing_date == Date.current ? find_available_extras : []
+    @available_extras = should_show_extras? ? find_available_extras : []
     @show_celebration = params[:celebration] == "true"
     @viewing_yesterday = @viewing_date == Date.current - 1.day
   end
@@ -79,6 +79,21 @@ class ChildKioskController < ApplicationController
   end
 
   private
+
+  def should_show_extras?
+    # Only show extras for current day, not yesterday
+    return false unless @viewing_date == Date.current
+    
+    family_setting = @child.family.family_setting
+    
+    # If setting is off, always show extras
+    return true unless family_setting&.require_chores_for_extras
+    
+    # If setting is on, only show extras if all chores are completed
+    return false unless @today_chore_list&.chore_completions&.any?
+    
+    @today_chore_list.chore_completions.all?(&:completed?)
+  end
 
   def find_daily_chore_list(date = Date.current)
     # Find existing chore list for the given date - don't auto-generate
