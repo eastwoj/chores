@@ -5,9 +5,11 @@ class ChildKioskController < ApplicationController
 
   def show
     @child = Child.find(params[:id])
-    @today_chore_list = find_or_create_daily_chore_list
-    @available_extras = find_available_extras
+    @viewing_date = params[:date] ? Date.parse(params[:date]) : Date.current
+    @today_chore_list = find_daily_chore_list(@viewing_date)
+    @available_extras = @viewing_date == Date.current ? find_available_extras : []
     @show_celebration = params[:celebration] == "true"
+    @viewing_yesterday = @viewing_date == Date.current - 1.day
   end
 
   def complete_chore
@@ -78,18 +80,10 @@ class ChildKioskController < ApplicationController
 
   private
 
-  def find_or_create_daily_chore_list
-    daily_list = @child.daily_chore_lists.find_by(date: Date.current)
-    
-    unless daily_list
-      # Generate today's chores if they don't exist
-      @child.family.generate_daily_chore_lists(Date.current)
-      daily_list = @child.daily_chore_lists.find_by(date: Date.current)
-    end
-
-    # Return the ChoreList that contains today's chore completions
+  def find_daily_chore_list(date = Date.current)
+    # Find existing chore list for the given date - don't auto-generate
     @child.chore_lists.includes(:chore_completions, chores: []).find_by(
-      start_date: Date.current,
+      start_date: date,
       interval: :daily
     )
   end

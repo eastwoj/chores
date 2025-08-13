@@ -82,17 +82,39 @@
     <div class="flex justify-between items-start mb-8">
       <div>
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-          Today's Chores
+          <% if @viewing_yesterday %>
+            Yesterday's Chores
+          <% else %>
+            Today's Chores
+          <% end %>
         </h1>
         <p class="text-lg text-gray-600">
-          Profile: <%= @child.name.downcase %>
+          Profile: <%= @child.name.downcase %><br>
+          <% if @viewing_yesterday %>
+            <span class="text-sm">Viewing: <%= @viewing_date.strftime("%B %d, %Y") %></span>
+          <% end %>
         </p>
       </div>
-      <%= link_to child_kiosk_index_path, class: "inline-block" do %>
-        <button class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
-          Switch Child
-        </button>
-      <% end %>
+      <div class="flex space-x-3">
+        <% unless @viewing_yesterday %>
+          <%= link_to child_kiosk_path(@child, date: Date.current - 1.day), class: "inline-block" do %>
+            <button class="bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+              Yesterday
+            </button>
+          <% end %>
+        <% else %>
+          <%= link_to child_kiosk_path(@child), class: "inline-block" do %>
+            <button class="bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+              Today
+            </button>
+          <% end %>
+        <% end %>
+        <%= link_to child_kiosk_index_path, class: "inline-block" do %>
+          <button class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+            Switch Child
+          </button>
+        <% end %>
+      </div>
     </div>
 
     <% if @today_chore_list && @today_chore_list.chore_completions.any? %>
@@ -185,7 +207,19 @@
             </div>
 
             <!-- Action Button -->
-            <% if completion.completed? && !completion.reviewed_at? %>
+            <% if @viewing_yesterday %>
+              <div class="text-gray-500 px-6 py-2 text-sm">
+                <% if completion.reviewed_satisfactory? %>
+                  ✓ Good Job!
+                <% elsif completion.reviewed_unsatisfactory? %>
+                  ⚠ Needed Work
+                <% elsif completion.completed? %>
+                  ✓ Completed
+                <% else %>
+                  ― Not Done
+                <% end %>
+              </div>
+            <% elsif completion.completed? && !completion.reviewed_at? %>
               <%= form_with url: uncomplete_chore_child_kiosk_path(@child), method: :patch, local: true, class: "inline" do |f| %>
                 <%= f.hidden_field :completion_id, value: completion.id %>
                 <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
@@ -287,15 +321,25 @@
       <% end %>
 
     <% else %>
-      <!-- No Chores Today -->
+      <!-- No Chores -->
       <div class="text-center py-16">
-        <div class="text-6xl mb-4">🎉</div>
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">
-          No chores today!
-        </h2>
-        <p class="text-xl text-gray-600">
-          Enjoy your free day, <%= @child.name %>!
-        </p>
+        <% if @viewing_yesterday %>
+          <div class="text-6xl mb-4">📝</div>
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            No chores from yesterday
+          </h2>
+          <p class="text-xl text-gray-600">
+            Either chores weren't generated or there were no chores assigned to you yesterday.
+          </p>
+        <% else %>
+          <div class="text-6xl mb-4">⏳</div>
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            Chores haven't been generated yet!
+          </h2>
+          <p class="text-xl text-gray-600">
+            Ask a parent to generate today's chores, <%= @child.name %>!
+          </p>
+        <% end %>
       </div>
     <% end %>
 
