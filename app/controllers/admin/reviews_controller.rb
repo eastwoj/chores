@@ -3,9 +3,13 @@ class Admin::ReviewsController < Admin::BaseController
     @date = params[:date]&.to_date || Date.current
     @family = current_adult.family
     
+    # Apply child filter if specified
+    children_scope = @family.children
+    children_scope = children_scope.where(id: params[:child_id]) if params[:child_id].present?
+    
     # Get all chore completions for today that need review
     @pending_chore_completions = ChoreCompletion.joins(:child)
-                                                .where(child: @family.children)
+                                                .where(child: children_scope)
                                                 .where(assigned_date: @date)
                                                 .where(completed_at: ..Time.current)
                                                 .where(reviewed_at: nil)
@@ -14,7 +18,7 @@ class Admin::ReviewsController < Admin::BaseController
     
     # Get all extra completions for today that need review  
     @pending_extra_completions = ExtraCompletion.joins(:child)
-                                               .where(child: @family.children)
+                                               .where(child: children_scope)
                                                .where(created_at: @date.beginning_of_day..@date.end_of_day)
                                                .where(status: [:completed])
                                                .includes(:extra, :child)
@@ -22,14 +26,14 @@ class Admin::ReviewsController < Admin::BaseController
     
     # Get already reviewed items for today
     @reviewed_chore_completions = ChoreCompletion.joins(:child)
-                                                .where(child: @family.children)
+                                                .where(child: children_scope)
                                                 .where(assigned_date: @date)
                                                 .where.not(reviewed_at: nil)
                                                 .includes(:chore, :child)
                                                 .order(:reviewed_at)
     
     @reviewed_extra_completions = ExtraCompletion.joins(:child)
-                                                .where(child: @family.children)
+                                                .where(child: children_scope)
                                                 .where(created_at: @date.beginning_of_day..@date.end_of_day)
                                                 .where(status: [:approved, :rejected])
                                                 .includes(:extra, :child)
