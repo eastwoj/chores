@@ -11,7 +11,7 @@
     "tailwindcss": "^3.4.0"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
+    "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets --target=chrome93",
     "build:css": "postcss ./app/assets/stylesheets/application.css -o ./app/assets/builds/application.css",
     "build:css:watch": "postcss ./app/assets/stylesheets/application.css -o ./app/assets/builds/application.css --watch"
   },

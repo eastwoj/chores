@@ -1,0 +1,6 @@
+defaults
+not IE 11
+Chrome >= 93
+ChromeAndroid >= 93
+iOS >= 13.6
+Safari >= 13
