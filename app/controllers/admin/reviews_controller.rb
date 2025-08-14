@@ -7,11 +7,10 @@ class Admin::ReviewsController < Admin::BaseController
     children_scope = @family.children
     children_scope = children_scope.where(id: params[:child_id]) if params[:child_id].present?
     
-    # Get all chore completions for today that need review
+    # Get all chore completions for today
     @pending_chore_completions = ChoreCompletion.joins(:child)
                                                 .where(child: children_scope)
                                                 .where(assigned_date: @date)
-                                                .where(completed_at: ..Time.current)
                                                 .where(reviewed_at: nil)
                                                 .includes(:chore, :child)
                                                 .order(:created_at)
