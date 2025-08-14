@@ -86,6 +86,9 @@ class ChildKioskController < ApplicationController
     
     family_setting = @child.family.family_setting
     
+    # Check if extras are excluded for today
+    return false if family_setting&.exclude_extras_today
+    
     # If setting is off, always show extras
     return true unless family_setting&.require_chores_for_extras
     

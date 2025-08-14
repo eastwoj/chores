@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     resources :dashboard, only: [:index] do
       collection do
         post :generate_chores
+        patch :toggle_extras
       end
     end
     resources :history, only: [:index]

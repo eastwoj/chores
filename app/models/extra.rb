@@ -15,6 +15,12 @@ class Extra < ApplicationRecord
     where("available_from <= ? AND available_until >= ?", date, date) 
   }
   scope :current, -> { available_on(Date.current) }
+  scope :available_today, -> { 
+    joins(:family => :family_setting)
+    .where(family_settings: { exclude_extras_today: false })
+    .current
+    .active 
+  }
 
   def available_on?(date)
     date.between?(available_from, available_until)
@@ -35,6 +41,7 @@ class Extra < ApplicationRecord
     return false unless active?
     return false unless available_today?
     return false if completion_slots_remaining.zero?
+    return false if family.family_setting.exclude_extras_today?
     
     true
   end

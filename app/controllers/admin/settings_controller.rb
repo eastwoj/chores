@@ -24,7 +24,8 @@ class Admin::SettingsController < Admin::BaseController
       :payout_day,
       :auto_approve_after_hours,
       :payout_interval_days,
-      :require_chores_for_extras
+      :require_chores_for_extras,
+      :exclude_extras_today
     )
   end
 end

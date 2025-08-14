@@ -100,6 +100,18 @@
               When enabled, children must complete all their chores before extra tasks become visible
             </p>
           </div>
+          
+          <div>
+            <div class="flex items-center">
+              <%= form.check_box :exclude_extras_today, 
+                                 class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+              <%= form.label :exclude_extras_today, "Exclude all extras from today", 
+                             class: "ml-2 block text-sm font-medium text-gray-700" %>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">
+              When enabled, no extra tasks will be available today (useful for behavior consequences or days without extras)
+            </p>
+          </div>
         </div>
       </div>
 
@@ -126,7 +138,9 @@
           <div>
             <span class="font-medium text-blue-800">Extras Visibility:</span>
             <span class="text-blue-700">
-              <% if @family_setting.require_chores_for_extras %>
+              <% if @family_setting.exclude_extras_today %>
+                Excluded today
+              <% elsif @family_setting.require_chores_for_extras %>
                 Require chores completed first
               <% else %>
                 Always visible

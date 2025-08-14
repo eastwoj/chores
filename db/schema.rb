@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_123621) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_14_143450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -212,6 +212,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_123621) do
     t.string "payout_frequency", default: "weekly", null: false
     t.integer "payout_day", default: 0, null: false
     t.boolean "require_chores_for_extras", default: false, null: false
+    t.boolean "exclude_extras_today", default: false, null: false
     t.index ["family_id"], name: "index_family_settings_on_family_id"
   end
 

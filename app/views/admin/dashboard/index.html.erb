@@ -24,6 +24,33 @@
     </div>
   </div>
 
+  <!-- Flash Messages -->
+  <% if flash.any? %>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <% flash.each do |type, message| %>
+        <% 
+          css_class = case type.to_s
+                      when 'notice'
+                        'bg-green-50 border-green-200 text-green-800'
+                      when 'alert'
+                        'bg-red-50 border-red-200 text-red-800'
+                      else
+                        'bg-blue-50 border-blue-200 text-blue-800'
+                      end
+        %>
+        <div class="mb-4 p-4 rounded-lg border <%= css_class %>">
+          <div class="flex">
+            <div class="ml-3">
+              <p class="text-sm font-medium">
+                <%= message %>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Quick Actions -->
@@ -34,6 +61,11 @@
         <%= button_to generate_chores_admin_dashboard_index_path, method: :post, class: "block" do %>
           <button class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition-colors">
             ✨ Generate Today's Chores
+          </button>
+        <% end %>
+        <%= button_to toggle_extras_admin_dashboard_index_path, method: :patch, class: "block" do %>
+          <button class="w-full <%= @family.family_setting.exclude_extras_today? ? 'bg-red-500 hover:bg-red-600' : 'bg-yellow-500 hover:bg-yellow-600' %> text-white p-4 rounded-lg font-semibold transition-colors">
+            <%= @family.family_setting.exclude_extras_today? ? '✅ Enable Extras Today' : '🚫 Exclude Extras Today' %>
           </button>
         <% end %>
         <%= link_to admin_reviews_path, class: "block" do %>

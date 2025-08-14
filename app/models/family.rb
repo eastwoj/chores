@@ -50,7 +50,8 @@ class Family < ApplicationRecord
       auto_approve_after_hours: 48,
       payout_frequency: "weekly",
       payout_day: 0,
-      require_chores_for_extras: false
+      require_chores_for_extras: false,
+      exclude_extras_today: false
     )
   end
 end
