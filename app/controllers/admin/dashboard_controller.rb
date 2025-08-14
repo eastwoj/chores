@@ -5,8 +5,8 @@ class Admin::DashboardController < Admin::BaseController
     @family = current_adult.family
     @children = @family.children.active
     
-    # Ensure today's chore lists exist for all active children (idempotent)
-    @family.generate_daily_chore_lists
+    # Ensure today's chore lists exist for all active children (only if they don't already exist)
+    @family.ensure_daily_chore_lists_exist
     
     @today_chore_lists = ChoreList.joins(:child)
                                   .where(child: @children, start_date: Date.current, interval: :daily)
@@ -48,8 +48,8 @@ class Admin::DashboardController < Admin::BaseController
     
     @family = current_adult.family
     
-    # Generate daily chore lists for all active children
-    # This is idempotent - won't create duplicates if already generated for today
+    # Explicitly regenerate daily chore lists for all active children
+    # This clears existing chores and generates fresh ones (used by the manual "Generate Chores" button)
     @family.generate_daily_chore_lists
     
     redirect_to admin_root_path, notice: "Today's chores have been generated successfully!"

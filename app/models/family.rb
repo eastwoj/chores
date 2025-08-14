@@ -24,6 +24,15 @@ class Family < ApplicationRecord
     DailyChoreListGenerator.new(self, date).generate_for_all_children
   end
 
+  def ensure_daily_chore_lists_exist(date = Date.current)
+    return if daily_chore_lists_exist_for_date?(date)
+    generate_daily_chore_lists(date)
+  end
+
+  def daily_chore_lists_exist_for_date?(date = Date.current)
+    daily_chore_lists.where(date: date).exists?
+  end
+
   def current_pay_period
     pay_periods.current.first || ensure_current_pay_period
   end
