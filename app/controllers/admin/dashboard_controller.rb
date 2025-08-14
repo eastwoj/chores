@@ -47,14 +47,38 @@ class Admin::DashboardController < Admin::BaseController
     authorize :admin_dashboard, :generate_chores?
     
     @family = current_adult.family
+    date = Date.current
+    extras_excluded = @family.family_setting&.exclude_extras_today || false
     
     # Explicitly regenerate daily chore lists for all active children
     # This clears existing chores and generates fresh ones (used by the manual "Generate Chores" button)
     @family.generate_daily_chore_lists
     
-    redirect_to admin_root_path, notice: "Today's chores have been generated successfully!"
+    # Create detailed success message
+    date_str = date.strftime("%A, %B %d, %Y")
+    extras_status = extras_excluded ? "with extras excluded" : "with extras available"
+    
+    redirect_to admin_root_path, notice: "Chores generated for #{date_str} #{extras_status}!"
   rescue StandardError => e
     Rails.logger.error "Error generating chores: #{e.message}"
     redirect_to admin_root_path, alert: "Failed to generate chores. Please try again."
+  end
+
+  def toggle_extras
+    authorize :admin_dashboard, :generate_chores?
+    
+    @family = current_adult.family
+    family_setting = @family.family_setting
+    date_str = Date.current.strftime("%A, %B %d")
+    
+    # Toggle the exclude_extras_today setting
+    new_value = !family_setting.exclude_extras_today
+    family_setting.update!(exclude_extras_today: new_value)
+    
+    message = new_value ? "Extras excluded for #{date_str}." : "Extras are now available for #{date_str}."
+    redirect_to admin_root_path, notice: message
+  rescue StandardError => e
+    Rails.logger.error "Error toggling extras: #{e.message}"
+    redirect_to admin_root_path, alert: "Failed to update extras setting. Please try again."
   end
 end
