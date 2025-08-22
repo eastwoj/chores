@@ -8,6 +8,40 @@
     <%= link_to "← Back to Dashboard", admin_dashboard_index_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors" %>
   </div>
 
+  <!-- Date Navigation -->
+  <div class="mb-6 flex justify-center">
+    <div class="flex items-center space-x-4">
+      <!-- Previous Week -->
+      <%= link_to admin_reviews_path(date: @date - 1.week, child_id: params[:child_id]), 
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
+        <span class="mr-1">« Week</span>
+      <% end %>
+      
+      <!-- Previous Day -->
+      <%= link_to admin_reviews_path(date: @date - 1.day, child_id: params[:child_id]), 
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
+        <span class="mr-1">‹ Day</span>
+      <% end %>
+      
+      <!-- Current Date Display -->
+      <div class="bg-blue-50 text-blue-800 px-4 py-2 rounded-lg font-semibold text-center min-w-[200px]">
+        <%= @date.strftime("%A, %B %d, %Y") %>
+      </div>
+      
+      <!-- Next Day -->
+      <%= link_to admin_reviews_path(date: @date + 1.day, child_id: params[:child_id]), 
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
+        <span class="ml-1">Day ›</span>
+      <% end %>
+      
+      <!-- Next Week -->
+      <%= link_to admin_reviews_path(date: @date + 1.week, child_id: params[:child_id]), 
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors flex items-center" do %>
+        <span class="ml-1">Week »</span>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Date Selector and Filters -->
   <div class="mb-6">
     <div class="flex items-center space-x-4">
