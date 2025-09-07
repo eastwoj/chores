@@ -197,7 +197,14 @@
     <!-- Pay Period Overview -->
     <% if @current_pay_period && @payout_preview && @payout_preview[:success] %>
       <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Current Pay Period</h2>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">Current Pay Period</h2>
+          <% if @period_ended %>
+            <span class="bg-orange-100 text-orange-800 text-sm font-medium px-3 py-1 rounded-full">
+              Period Ended
+            </span>
+          <% end %>
+        </div>
         
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -238,18 +245,61 @@
             </div>
           </div>
           
-          <% if @payout_preview[:earnings_by_child].any? %>
+          <% if @detailed_earnings&.any? %>
             <div class="mt-6 pt-6 border-t border-gray-200">
-              <h4 class="font-semibold text-gray-900 mb-4">Earnings Breakdown</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <% @payout_preview[:earnings_by_child].each do |child_id, earnings| %>
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-gray-900">Earnings Breakdown</h4>
+                <%= link_to "View Full History", admin_pay_periods_path, 
+                          class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+              </div>
+              
+              <div class="space-y-4">
+                <% @detailed_earnings.each do |child_id, earnings| %>
                   <div class="bg-gray-50 rounded-lg p-4">
-                    <h5 class="font-medium text-gray-900"><%= earnings[:child].name %></h5>
-                    <p class="text-lg font-bold text-green-600">$<%= sprintf("%.2f", earnings[:total]) %></p>
-                    <p class="text-sm text-gray-600">
-                      Chores: $<%= sprintf("%.2f", earnings[:chore_earnings]) %> • 
-                      Extras: $<%= sprintf("%.2f", earnings[:extra_earnings]) %>
-                    </p>
+                    <div class="flex items-center justify-between mb-3">
+                      <h5 class="font-medium text-gray-900"><%= earnings[:child].name %></h5>
+                      <p class="text-lg font-bold text-green-600">$<%= sprintf("%.2f", earnings[:total]) %></p>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                      <% if earnings[:completed_chores].any? %>
+                        <div>
+                          <p class="font-medium text-gray-700">Chores ($<%= sprintf("%.2f", earnings[:chore_earnings]) %>):</p>
+                          <ul class="ml-4 space-y-1">
+                            <% earnings[:completed_chores].each do |chore_data| %>
+                              <li class="text-gray-600">
+                                <%= chore_data[:chore].title %> 
+                                <span class="text-green-600">+$<%= sprintf("%.2f", chore_data[:amount]) %></span>
+                                <span class="text-gray-400">
+                                  (<%= chore_data[:completed_at]&.strftime("%m/%d") %>)
+                                </span>
+                              </li>
+                            <% end %>
+                          </ul>
+                        </div>
+                      <% end %>
+                      
+                      <% if earnings[:completed_extras].any? %>
+                        <div>
+                          <p class="font-medium text-gray-700">Extras ($<%= sprintf("%.2f", earnings[:extra_earnings]) %>):</p>
+                          <ul class="ml-4 space-y-1">
+                            <% earnings[:completed_extras].each do |extra_data| %>
+                              <li class="text-gray-600">
+                                <%= extra_data[:extra].title %>
+                                <span class="text-green-600">+$<%= sprintf("%.2f", extra_data[:amount]) %></span>
+                                <span class="text-gray-400">
+                                  (<%= extra_data[:completed_at]&.strftime("%m/%d") %>)
+                                </span>
+                              </li>
+                            <% end %>
+                          </ul>
+                        </div>
+                      <% end %>
+                      
+                      <% if earnings[:completed_chores].empty? && earnings[:completed_extras].empty? %>
+                        <p class="text-gray-500 italic">No earnings this period</p>
+                      <% end %>
+                    </div>
                   </div>
                 <% end %>
               </div>

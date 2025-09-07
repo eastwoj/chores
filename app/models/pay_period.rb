@@ -122,6 +122,50 @@ class PayPeriod < ApplicationRecord
     earnings
   end
 
+  def detailed_earnings_by_child
+    earnings = {}
+    
+    children.active.each do |child|
+      completed_chores = child.chore_completions
+                             .reviewed_satisfactory
+                             .includes(:chore)
+                             .where(reviewed_at: start_date.beginning_of_day..end_date.end_of_day)
+      
+      completed_extras = child.extra_completions
+                             .approved
+                             .includes(:extra)
+                             .where(approved_at: start_date.beginning_of_day..end_date.end_of_day)
+      
+      chore_earnings = completed_chores.sum(:earned_amount)
+      extra_earnings = completed_extras.sum(:earned_amount)
+      
+      earnings[child.id] = {
+        child: child,
+        chore_earnings: chore_earnings,
+        extra_earnings: extra_earnings,
+        total: chore_earnings + extra_earnings,
+        completed_chores: completed_chores.map do |completion|
+          {
+            chore: completion.chore,
+            completed_at: completion.completed_at,
+            reviewed_at: completion.reviewed_at,
+            amount: completion.earned_amount
+          }
+        end,
+        completed_extras: completed_extras.map do |completion|
+          {
+            extra: completion.extra,
+            completed_at: completion.completed_at,
+            approved_at: completion.approved_at,
+            amount: completion.earned_amount
+          }
+        end
+      }
+    end
+    
+    earnings
+  end
+
   def can_payout?
     active? && all_daily_chores_completed_for_today?
   end
