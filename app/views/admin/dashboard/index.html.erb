@@ -227,21 +227,32 @@
             </div>
             
             <div>
-              <h3 class="font-semibold text-gray-900 mb-2">Payout Status</h3>
-              <% if @payout_preview[:can_payout] %>
-                <%= link_to admin_payout_path, class: "inline-block" do %>
-                  <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-                    Process Payout
+              <h3 class="font-semibold text-gray-900 mb-2">Actions</h3>
+              <div class="space-y-2">
+                <% if @payout_preview[:can_payout] %>
+                  <%= link_to admin_payout_path, class: "inline-block w-full" do %>
+                    <button class="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                      Process Payout
+                    </button>
+                  <% end %>
+                <% else %>
+                  <div class="text-orange-600 mb-3">
+                    <p class="font-medium">Payout Blocked</p>
+                    <p class="text-sm text-gray-600 mt-1">
+                      <%= @payout_preview[:blocked_reason] %>
+                    </p>
+                  </div>
+                <% end %>
+                
+                <%= link_to complete_admin_pay_period_path(@current_pay_period), 
+                           method: :patch,
+                           class: "inline-block w-full",
+                           confirm: "This will end the current pay period and start a new one. No payout will be processed. Are you sure?" do %>
+                  <button class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                    Mark Period Complete
                   </button>
                 <% end %>
-              <% else %>
-                <div class="text-orange-600">
-                  <p class="font-medium">Payout Blocked</p>
-                  <p class="text-sm text-gray-600 mt-1">
-                    <%= @payout_preview[:blocked_reason] %>
-                  </p>
-                </div>
-              <% end %>
+              </div>
             </div>
           </div>
           

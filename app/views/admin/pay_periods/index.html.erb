@@ -53,7 +53,18 @@
                 <p class="text-2xl font-bold text-green-600">
                   $<%= sprintf("%.2f", period.total_earnings_for_period) %>
                 </p>
-                <p class="text-sm text-gray-500">Total</p>
+                <p class="text-sm text-gray-500 mb-2">Total</p>
+                
+                <% if period.current_period? %>
+                  <%= link_to complete_admin_pay_period_path(period), 
+                             method: :patch,
+                             class: "inline-block",
+                             confirm: "This will end the current pay period and start a new one. No payout will be processed. Are you sure?" do %>
+                    <button class="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 transition-colors">
+                      Mark Complete
+                    </button>
+                  <% end %>
+                <% end %>
               </div>
             </div>
             

@@ -58,6 +58,15 @@ class PayPeriod < ApplicationRecord
     end
   end
 
+  def force_complete!
+    transaction do
+      update!(status: "completed", current_period: false, last_payout_at: nil)
+      
+      # Create next period automatically
+      PayPeriod.create_next_period_for_family(family)
+    end
+  end
+
   def payout_due?
     Date.current >= next_payout_date && has_completions_to_pay?
   end
