@@ -56,11 +56,13 @@
                 <p class="text-sm text-gray-500 mb-2">Total</p>
                 
                 <% if period.current_period? %>
-                  <%= link_to complete_admin_pay_period_path(period), 
-                             method: :patch,
-                             class: "inline-block",
-                             confirm: "This will end the current pay period and start a new one. No payout will be processed. Are you sure?" do %>
-                    <button class="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 transition-colors">
+                  <%= form_with url: complete_admin_pay_period_path(period), 
+                                method: :patch, 
+                                local: true, 
+                                class: "inline-block" do %>
+                    <button type="submit" 
+                            class="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 transition-colors"
+                            onclick="return confirm('This will end the current pay period and start a new one. No payout will be processed. Are you sure?')">
                       Mark Complete
                     </button>
                   <% end %>
