@@ -16,6 +16,8 @@ class Admin::DashboardController < Admin::BaseController
     @current_pay_period = @family.current_pay_period
     @payout_service = PayoutService.new(@family, current_adult)
     @payout_preview = @payout_service.payout_preview if @current_pay_period
+    @detailed_earnings = @current_pay_period.detailed_earnings_by_child if @current_pay_period
+    @period_ended = @current_pay_period&.end_date && @current_pay_period.end_date < Date.current
     
     # Notifications
     @unread_notifications = @family.payout_notifications

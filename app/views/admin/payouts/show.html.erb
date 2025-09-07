@@ -51,22 +51,63 @@
         
         <!-- Individual Child Earnings -->
         <div class="space-y-4">
-          <h3 class="font-semibold text-gray-900">Individual Earnings</h3>
+          <h3 class="font-semibold text-gray-900">Detailed Earnings Breakdown</h3>
           
-          <% @earnings_by_child.each do |child_id, earnings| %>
-            <div class="bg-gray-50 rounded-lg p-4 flex justify-between items-center">
-              <div>
+          <% @detailed_earnings.each do |child_id, earnings| %>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="flex justify-between items-center mb-4">
                 <h4 class="font-medium text-gray-900"><%= earnings[:child].name %></h4>
-                <div class="text-sm text-gray-600 mt-1">
-                  Chores: $<%= sprintf("%.2f", earnings[:chore_earnings]) %> • 
-                  Extras: $<%= sprintf("%.2f", earnings[:extra_earnings]) %>
-                </div>
-              </div>
-              
-              <div class="text-right">
                 <p class="text-xl font-bold text-green-600">
                   $<%= sprintf("%.2f", earnings[:total]) %>
                 </p>
+              </div>
+              
+              <div class="space-y-3 text-sm">
+                <% if earnings[:completed_chores].any? %>
+                  <div>
+                    <p class="font-medium text-gray-700 mb-2">Chores ($<%= sprintf("%.2f", earnings[:chore_earnings]) %>):</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 ml-4">
+                      <% earnings[:completed_chores].each do |chore_data| %>
+                        <div class="bg-white rounded px-3 py-2 flex justify-between items-center">
+                          <span class="text-gray-700">
+                            <%= chore_data[:chore].title %>
+                            <span class="text-gray-400 text-xs block">
+                              Completed: <%= chore_data[:completed_at]&.strftime("%m/%d at %l:%M%P") %>
+                            </span>
+                          </span>
+                          <span class="text-green-600 font-medium">
+                            +$<%= sprintf("%.2f", chore_data[:amount]) %>
+                          </span>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <% if earnings[:completed_extras].any? %>
+                  <div>
+                    <p class="font-medium text-gray-700 mb-2">Extras ($<%= sprintf("%.2f", earnings[:extra_earnings]) %>):</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 ml-4">
+                      <% earnings[:completed_extras].each do |extra_data| %>
+                        <div class="bg-white rounded px-3 py-2 flex justify-between items-center">
+                          <span class="text-gray-700">
+                            <%= extra_data[:extra].title %>
+                            <span class="text-gray-400 text-xs block">
+                              Completed: <%= extra_data[:completed_at]&.strftime("%m/%d at %l:%M%P") %>
+                            </span>
+                          </span>
+                          <span class="text-green-600 font-medium">
+                            +$<%= sprintf("%.2f", extra_data[:amount]) %>
+                          </span>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <% if earnings[:completed_chores].empty? && earnings[:completed_extras].empty? %>
+                  <p class="text-gray-500 italic text-center py-4">No earnings this period</p>
+                <% end %>
               </div>
             </div>
           <% end %>

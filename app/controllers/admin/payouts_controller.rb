@@ -11,6 +11,7 @@ class Admin::PayoutsController < Admin::BaseController
     end
 
     @earnings_by_child = @payout_preview[:earnings_by_child]
+    @detailed_earnings = @current_period.detailed_earnings_by_child
     @total_payout = @payout_preview[:total_payout]
     @can_payout = @payout_preview[:can_payout]
     @blocked_reason = @payout_preview[:blocked_reason]

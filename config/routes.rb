@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       end
     end
     resources :history, only: [:index]
+    resources :pay_periods, only: [:index, :show]
     resource :payout, only: [:show, :create]
     resource :settings, only: [:show, :update]
     resources :reviews, only: [:index] do
