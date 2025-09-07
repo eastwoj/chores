@@ -100,7 +100,7 @@ class PayPeriod < ApplicationRecord
   def earnings_by_child
     earnings = {}
     
-    children.active.each do |child|
+    family.children.active.each do |child|
       child_chore_earnings = child.chore_completions
                                  .reviewed_satisfactory
                                  .where(reviewed_at: start_date.beginning_of_day..end_date.end_of_day)
@@ -125,7 +125,7 @@ class PayPeriod < ApplicationRecord
   def detailed_earnings_by_child
     earnings = {}
     
-    children.active.each do |child|
+    family.children.active.each do |child|
       completed_chores = child.chore_completions
                              .reviewed_satisfactory
                              .includes(:chore)
